@@ -1,26 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #060608;
+  --foreground: #f4f4f7;
+  
+  --font-outfit: 'Outfit', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+
+  /* Luxury Theme Colors */
+  --gold-start: #d4af37;
+  --gold-end: #f3e5ab;
+  --rose-gold-start: #b76e79;
+  --rose-gold-end: #ffd1dc;
+  
+  --dark-glass-bg: rgba(13, 13, 17, 0.65);
+  --dark-glass-border: rgba(212, 175, 55, 0.12);
+  --dark-glass-border-hover: rgba(212, 175, 55, 0.3);
+  --gold-glow: 0 0 25px rgba(212, 175, 55, 0.15);
+  --gold-glow-intense: 0 0 35px rgba(212, 175, 55, 0.35);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-outfit);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-outfit);
+  letter-spacing: -0.02em;
+}
+
+/* Luxurious Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b0b0f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(214, 175, 55, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(214, 175, 55, 0.45);
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--dark-glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--dark-glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-hover:hover {
+  border-color: var(--dark-glass-border-hover);
+  box-shadow: var(--gold-glow);
+  transform: translateY(-2px);
+}
+
+/* Luxury Gold & Rose-Gold Text Gradients */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa7c11 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-rose-gradient {
+  background: linear-gradient(135deg, #ffd1dc 0%, #b76e79 60%, #914e5a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #aa7c11 0%, #d4af37 50%, #f3e5ab 100%);
+}
+
+.bg-gold-dark-gradient {
+  background: linear-gradient(135deg, #161208 0%, #2e240f 50%, #4a3a19 100%);
+}
+
+.bg-rose-gradient {
+  background: linear-gradient(135deg, #914e5a 0%, #b76e79 50%, #ffd1dc 100%);
+}
+
+/* Neon Glows & Radial Backdrops */
+.glow-gold {
+  box-shadow: var(--gold-glow);
+}
+
+.glow-gold-intense {
+  box-shadow: var(--gold-glow-intense);
+}
+
+.glow-radial-overlay {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0) 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-radial-rose {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(183, 110, 121, 0.08) 0%, rgba(183, 110, 121, 0) 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ambient Animation Keyframes */
+@keyframes laser-sweep {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
+}
+
+.animate-laser {
+  animation: laser-sweep 3s infinite linear;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s infinite ease-in-out;
 }
