@@ -180,7 +180,7 @@ export default function GuestScanner() {
               Wedding Event Package Inactive
             </h3>
             <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
-              This wedding event pool ({scannedEventTitle || "ShareMyPhoto Event"}) is currently running on an inactive or expired package. Guests can still scan selfies to find matched photos, but the host/organizer will need to renew or upgrade their plan to manage catalogs or upload additional photos.
+              This wedding event pool ({scannedEventTitle || "ShareEventPhoto Event"}) is currently running on an inactive or expired package. Guests can still scan selfies to find matched photos, but the host/organizer will need to renew or upgrade their plan to manage catalogs or upload additional photos.
             </p>
           </div>
         </div>

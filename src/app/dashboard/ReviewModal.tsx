@@ -254,7 +254,7 @@ export default function ReviewModal({ isOpen, onClose }: ReviewModalProps) {
                   Couple's Thoughts *
                 </label>
                 <textarea
-                  placeholder="Tell couples how easy it was to find your wedding memories! Did ShareMyPhoto AI save you hours of searching?..."
+                  placeholder="Tell couples how easy it was to find your wedding memories! Did ShareEventPhoto AI save you hours of searching?..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   rows={4}

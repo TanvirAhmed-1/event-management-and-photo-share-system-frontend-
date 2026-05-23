@@ -224,7 +224,7 @@ export default function Dashboard() {
           </div>
           <div className="text-left">
             <h3 className="font-heading font-black text-sm uppercase text-white tracking-wide">
-              Loving ShareMyPhoto AI?
+              Loving ShareEventPhoto AI?
             </h3>
             <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed max-w-lg">
               Share your magical wedding memory retrieval experience with other newlywed couples! Your thoughts help make our AI scanner even better.

@@ -165,7 +165,7 @@ export default function Home() {
               Love From Wedding Couples
             </h2>
             <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
-              Read how ShareMyPhoto AI brought smiles to couples and wedding guests by finding their memories instantly.
+              Read how ShareEventPhoto AI brought smiles to couples and wedding guests by finding their memories instantly.
             </p>
           </div>
           <ReviewSlider />

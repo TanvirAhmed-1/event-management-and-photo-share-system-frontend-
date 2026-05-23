@@ -46,7 +46,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2 group">
               <span className="text-2xl font-black font-heading tracking-wider uppercase text-gold-gradient group-hover:glow-gold-intense transition-all duration-300">
-                SHAREMY<span className="text-white">PHOTO</span>
+                SHAREEVENT<span className="text-white">PHOTO</span>
               </span>
               <div className="w-1.5 h-1.5 rounded-full bg-rose-gradient animate-pulse"></div>
             </Link>

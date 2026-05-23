@@ -19,7 +19,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "ShareMyPhoto AI - Luxury AI Wedding Photo Finder & Face Matcher",
+  title: "ShareEventPhoto AI - Luxury AI Wedding Photo Finder & Face Matcher",
   description:
     "An elegant SaaS photo finder for weddings. Guests can upload a selfie to instantly find all professional wedding photos containing their faces via secure AI scanning.",
   keywords: [
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     "wedding guest face matcher",
     "luxury wedding photography saas",
     "ai wedding photo organizer",
-    "share my photo ai",
+    "share event photo ai",
     "tanvir ahmed",
   ],
   authors: [{ name: "Tanvir Ahmed", url: "https://tanvirahmed1.netlify.app/" }],
@@ -39,16 +39,16 @@ export const metadata: Metadata = {
     apple: "/favicon.svg",
   },
   openGraph: {
-    title: "ShareMyPhoto AI - Luxury AI Wedding Photo Finder",
+    title: "ShareEventPhoto AI - Luxury AI Wedding Photo Finder",
     description: "An elegant SaaS photo finder for weddings. Guests can find professional photos instantly via secure AI facial recognition scanning.",
-    url: "https://sharemyphoto-ai.com",
-    siteName: "ShareMyPhoto AI",
+    url: "https://shareeventphoto-ai.com",
+    siteName: "ShareEventPhoto AI",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ShareMyPhoto AI - Luxury AI Wedding Photo Finder",
+    title: "ShareEventPhoto AI - Luxury AI Wedding Photo Finder",
     description: "Guests upload a selfie to instantly find all professional wedding photos containing their faces.",
   },
 };
@@ -61,8 +61,8 @@ export default function RootLayout({
   const schemaJson = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "ShareMyPhoto AI",
-    "url": "https://sharemyphoto-ai.com",
+    "name": "ShareEventPhoto AI",
+    "url": "https://shareeventphoto-ai.com",
     "description": "An elegant SaaS photo finder for weddings. Guests can upload a selfie to instantly find all professional wedding photos containing their faces via secure AI scanning.",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "All",

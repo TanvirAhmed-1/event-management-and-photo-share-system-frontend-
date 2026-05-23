@@ -13,7 +13,7 @@ export default function Footer() {
             <div>
               <Link href="/" className="flex items-center gap-2">
                 <span className="text-xl font-black font-heading tracking-wider uppercase text-gold-gradient">
-                  SHAREMY<span className="text-white">PHOTO</span>
+                  SHAREEVENT<span className="text-white">PHOTO</span>
                 </span>
               </Link>
               <p className="mt-2 text-xs text-gray-500 font-medium">
@@ -32,7 +32,7 @@ export default function Footer() {
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-gray-600">
-              &copy; {new Date().getFullYear()} ShareMyPhoto AI. All rights reserved.
+              &copy; {new Date().getFullYear()} ShareEventPhoto AI. All rights reserved.
             </p>
             <p className="text-[10px] tracking-wider text-gray-600 uppercase font-semibold">
               Designed for luxurious experiences &bull; Powered by Deep Face embeddings

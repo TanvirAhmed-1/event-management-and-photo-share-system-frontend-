@@ -2,9 +2,16 @@
 
 import Container from "@/components/shared/Container";
 import GlassCard from "@/components/shared/GlassCard";
-import { Mail, Phone, MapPin, Cpu, Heart, Layers, Users, Sparkles, Code2, Globe, Github } from "lucide-react";
+import { Mail, Phone, MapPin, Cpu, Heart, Layers, Users, Sparkles, Code2, Globe } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+
+const Github = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+    <path d="M9 18c-4.51 2-5-2-7-2" />
+  </svg>
+);
 
 export default function AboutUsPage() {
   const skills = [
@@ -33,10 +40,10 @@ export default function AboutUsPage() {
           <Sparkles className="w-3.5 h-3.5" /> Empowering Celebrations
         </span>
         <h1 className="text-4xl sm:text-6xl font-extrabold font-heading text-white tracking-tight leading-tight">
-          About <span className="text-rose-gradient font-black">ShareMyPhoto AI</span>
+          About <span className="text-rose-gradient font-black">ShareEventPhoto AI</span>
         </h1>
         <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
-          We leverage cutting-edge artificial intelligence to revolutionize how hosts and guests cherish wedding memories. ShareMyPhoto AI instantly matches faces to organize hundreds of guest captures seamlessly.
+          We leverage cutting-edge artificial intelligence to revolutionize how hosts and guests cherish wedding memories. ShareEventPhoto AI instantly matches faces to organize hundreds of guest captures seamlessly.
         </p>
       </div>
 
