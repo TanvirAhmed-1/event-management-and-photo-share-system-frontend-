@@ -34,7 +34,7 @@ export default function ScannerIllustration({ floatVariants }: ScannerIllustrati
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/40" />
                 <div className="w-2.5 h-2.5 rounded-full bg-green-500/40" />
                 <span className="text-[10px] uppercase font-heading font-black text-gray-400 tracking-widest ml-1">
-                  AuraFind AI Viewfinder v1.0
+                  ShareMyPhoto AI Viewfinder v1.0
                 </span>
               </div>
               <span className="text-[9px] font-black uppercase text-[#d4af37] bg-[#d4af37]/5 px-3 py-1 rounded-full border border-[#d4af37]/20 flex items-center gap-1">

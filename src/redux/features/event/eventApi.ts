@@ -39,6 +39,13 @@ const eventApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["event", "user"],
     }),
+    toggleEventActiveAdmin: builder.mutation({
+      query: (id) => ({
+        url: `/events/admin/events/${id}/toggle-active`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["event"],
+    }),
   }),
 });
 
@@ -48,4 +55,5 @@ export const {
   useCreateEventMutation,
   useUpdateEventMutation,
   useDeleteEventMutation,
+  useToggleEventActiveAdminMutation,
 } = eventApi;

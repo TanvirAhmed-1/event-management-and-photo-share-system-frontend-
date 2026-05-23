@@ -8,7 +8,7 @@ interface ContainerProps {
 
 export default function Container({ children, className }: ContainerProps) {
   return (
-    <div className={cn("max-w-[1400px] mx-auto w-full p-2 px-4 sm:px-6 lg:px-8 relative z-10", className)}>
+    <div className={cn("max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8 relative z-10", className)}>
       {children}
     </div>
   );

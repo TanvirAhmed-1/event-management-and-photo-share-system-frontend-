@@ -56,12 +56,15 @@ export default function ReviewModal({ isOpen, onClose }: ReviewModalProps) {
   const [rating, setRating] = useState<number>(5);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
+  const [customName, setCustomName] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const isSuperAdmin = activeUser?.role === "SUPER_ADMIN";
+
   // Pre-fill name from active profile
-  const userName = activeUser?.name || "Lovely Couple";
+  const userName = isSuperAdmin ? (customName || "Lovely Couple") : (activeUser?.name || "Lovely Couple");
 
   // Clean up thumbnail preview URL
   useEffect(() => {
@@ -99,6 +102,13 @@ export default function ReviewModal({ isOpen, onClose }: ReviewModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const submitName = isSuperAdmin ? customName.trim() : userName;
+    if (!submitName) {
+      toast.error("Please enter a couple/reviewer name!");
+      return;
+    }
+
     if (!comment.trim()) {
       toast.error("Please tell us your thoughts!");
       return;
@@ -106,7 +116,7 @@ export default function ReviewModal({ isOpen, onClose }: ReviewModalProps) {
 
     // Prepare FormData payload for Multipart upload
     const formData = new FormData();
-    formData.append("name", userName);
+    formData.append("name", submitName);
     formData.append("rating", rating.toString());
     formData.append("comment", comment.trim());
     if (avatarFile) {
@@ -122,6 +132,7 @@ export default function ReviewModal({ isOpen, onClose }: ReviewModalProps) {
         // Reset states
         setRating(5);
         setComment("");
+        setCustomName("");
         setAvatarFile(null);
         setAvatarPreview(null);
         
@@ -175,18 +186,34 @@ export default function ReviewModal({ isOpen, onClose }: ReviewModalProps) {
             {/* Modal Form */}
             <form onSubmit={handleSubmit} className="p-6 space-y-6 relative z-10">
               
-              {/* Dynamic Welcome Capsule */}
-              <div className="p-4 rounded-2xl bg-white/2 border border-white/5 flex items-center justify-between">
-                <div>
-                  <span className="text-[8px] uppercase tracking-widest text-gray-500 font-bold font-mono">Reviewing As</span>
-                  <h4 className="text-xs font-black text-white font-heading uppercase mt-0.5 tracking-wider">
-                    {userName}
-                  </h4>
+              {/* Dynamic Welcome Capsule / Custom Name Input */}
+              {isSuperAdmin ? (
+                <div className="space-y-2">
+                  <label className="font-heading text-[10px] uppercase tracking-widest text-[#d4af37] font-bold flex items-center gap-1.5 pl-1">
+                    Couple / Reviewer Name *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Jessica & David"
+                    value={customName}
+                    onChange={(e) => setCustomName(e.target.value)}
+                    required
+                    className="w-full px-5 py-4 bg-[#050507] border border-white/10 hover:border-[#d4af37]/35 rounded-2xl font-medium text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#d4af37]/70 focus:ring-1 focus:ring-[#d4af37]/30 transition-all duration-300"
+                  />
                 </div>
-                <span className="text-[8px] uppercase tracking-widest font-black bg-[#d4af37]/10 text-[#d4af37] px-2.5 py-1 rounded border border-[#d4af37]/15">
-                  Couple Account
-                </span>
-              </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-white/2 border border-white/5 flex items-center justify-between">
+                  <div>
+                    <span className="text-[8px] uppercase tracking-widest text-gray-500 font-bold font-mono">Reviewing As</span>
+                    <h4 className="text-xs font-black text-white font-heading uppercase mt-0.5 tracking-wider">
+                      {userName}
+                    </h4>
+                  </div>
+                  <span className="text-[8px] uppercase tracking-widest font-black bg-[#d4af37]/10 text-[#d4af37] px-2.5 py-1 rounded border border-[#d4af37]/15">
+                    Couple Account
+                  </span>
+                </div>
+              )}
 
               {/* Star Rating Selectors */}
               <div className="flex flex-col items-center justify-center gap-2 text-center py-2">
@@ -227,7 +254,7 @@ export default function ReviewModal({ isOpen, onClose }: ReviewModalProps) {
                   Couple's Thoughts *
                 </label>
                 <textarea
-                  placeholder="Tell couples how easy it was to find your wedding memories! Did AuraFind AI save you hours of searching?..."
+                  placeholder="Tell couples how easy it was to find your wedding memories! Did ShareMyPhoto AI save you hours of searching?..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   rows={4}

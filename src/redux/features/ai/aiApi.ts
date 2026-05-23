@@ -9,9 +9,18 @@ const aiApi = baseApi.injectEndpoints({
         body: formData,
         // RTK Query automatically sets standard multi-part boundary headers for FormData
       }),
-      invalidatesTags: ["ai"],
+      invalidatesTags: ["photo"],
+    }),
+    reprocessEvent: builder.mutation({
+      query: (eventId) => ({
+        url: "/ai/reprocess-event",
+        method: "POST",
+        body: { eventId },
+      }),
+      invalidatesTags: ["photo"],
     }),
   }),
+  overrideExisting: true,
 });
 
-export const { useSearchFaceMutation } = aiApi;
+export const { useSearchFaceMutation, useReprocessEventMutation } = aiApi;

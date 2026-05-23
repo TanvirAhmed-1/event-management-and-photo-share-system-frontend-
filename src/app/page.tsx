@@ -87,7 +87,7 @@ export default function Home() {
 
   return (
     <div className="relative w-full overflow-hidden pb-24">
-      
+
       {/* Absolute Decorative Floating Background Elements */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Floating Particle 1 */}
@@ -135,7 +135,7 @@ export default function Home() {
       </div>
 
       <Container className="flex flex-col gap-24 py-16 sm:py-24 relative z-10">
-        
+
         {/* 1. Hero Section */}
         <Hero containerVariants={containerVariants} itemVariants={itemVariants} />
 
@@ -149,10 +149,10 @@ export default function Home() {
         <PlatformBenefits />
 
         {/* 5. SaaS Pricing & Subscription Selection + FAQs Accordion */}
-        <PricingPlans 
-          packages={packages} 
-          packagesLoading={packagesLoading} 
-          onSelectPackage={handleSelectPackage} 
+        <PricingPlans
+          packages={packages}
+          packagesLoading={packagesLoading}
+          onSelectPackage={handleSelectPackage}
         />
 
         {/* 6. Love From Wedding Couples & Guests (Reviews Slider) */}
@@ -165,7 +165,7 @@ export default function Home() {
               Love From Wedding Couples
             </h2>
             <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
-              Read how AuraFind AI brought smiles to couples and wedding guests by finding their memories instantly.
+              Read how ShareMyPhoto AI brought smiles to couples and wedding guests by finding their memories instantly.
             </p>
           </div>
           <ReviewSlider />

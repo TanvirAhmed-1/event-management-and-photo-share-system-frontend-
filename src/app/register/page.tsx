@@ -142,13 +142,13 @@ function RegisterForm() {
                       <div
                         key={pkg.id}
                         onClick={() => setFormData((prev) => ({ ...prev, packageId: pkg.id }))}
-                        className={`p-5 rounded-2xl border text-left cursor-pointer transition-all duration-300 flex items-center justify-between group ${
+                        className={`p-5 rounded-2xl border text-left cursor-pointer transition-all duration-300 flex items-start justify-between gap-4 group ${
                           isSelected
                             ? "bg-gold-dark-gradient/30 border-[#d4af37] shadow-[0_0_25px_rgba(212,175,55,0.12)] scale-[1.01]"
                             : "bg-[#0c0c10]/60 border-white/5 hover:border-white/10 hover:bg-white/5"
                         }`}
                       >
-                        <div>
+                        <div className="flex-grow">
                           <div className="flex items-center gap-2">
                             <h3 className="font-heading font-bold text-sm text-white uppercase tracking-wide">
                               {pkg.name}
@@ -159,11 +159,21 @@ function RegisterForm() {
                               </span>
                             )}
                           </div>
-                          <p className="text-[10px] text-gray-400 mt-1 font-medium">
+                          <p className="text-[10px] text-[#d4af37] mt-1.5 font-semibold uppercase tracking-wider">
                             Allocation: {pkg.storageLimitMB >= 1000 ? `${(pkg.storageLimitMB / 1000).toFixed(0)} GB` : `${pkg.storageLimitMB} MB`} Secure Storage
                           </p>
+
+                          {/* Detailed features bullet list */}
+                          <ul className="mt-3.5 space-y-2 border-t border-white/5 pt-3 text-[10px] text-gray-400 font-medium">
+                            {(Array.isArray(pkg.description) ? pkg.description : []).map((feature: string, fIdx: number) => (
+                              <li key={fIdx} className="flex items-start gap-2">
+                                <Check className="w-3.5 h-3.5 text-[#d4af37] shrink-0 mt-0.5" />
+                                <span className="leading-tight">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 shrink-0 pt-0.5">
                           <div className="text-right">
                             <div className="text-base font-extrabold text-white font-heading">${pkg.price}</div>
                             <div className="text-[8px] text-gray-500 uppercase tracking-widest font-bold mt-0.5">

@@ -18,6 +18,8 @@ export default function GuestScanner() {
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const [matchedPhotos, setMatchedPhotos] = useState<any[]>([]);
   const [hasScanned, setHasScanned] = useState(false);
+  const [isPackageExpired, setIsPackageExpired] = useState(false);
+  const [scannedEventTitle, setScannedEventTitle] = useState("");
 
   // Web Camera States
   const [cameraActive, setCameraActive] = useState(false);
@@ -32,6 +34,7 @@ export default function GuestScanner() {
     setSelfieFile(null);
     setMatchedPhotos([]);
     setHasScanned(false);
+    setIsPackageExpired(false);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 640 } },
@@ -91,6 +94,7 @@ export default function GuestScanner() {
       setPreviewSrc(URL.createObjectURL(file));
       setMatchedPhotos([]);
       setHasScanned(false);
+      setIsPackageExpired(false);
       stopCamera();
     }
   };
@@ -110,7 +114,14 @@ export default function GuestScanner() {
       if (res.success) {
         setMatchedPhotos(res.data || []);
         setHasScanned(true);
-        if (res.data?.length > 0) {
+        setIsPackageExpired(!!res.packageExpired);
+        if (res.eventTitle) {
+          setScannedEventTitle(res.eventTitle);
+        }
+
+        if (res.packageExpired) {
+          toast.error("This event's package is inactive! Please ask the organizer to upgrade.", { duration: 6000 });
+        } else if (res.data?.length > 0) {
           toast.success(`Match completed! Found ${res.data.length} photos.`);
         } else {
           toast.success("Scanning completed, but no matched photos found in this event pool.");
@@ -157,6 +168,23 @@ export default function GuestScanner() {
           Snap a selfie or upload an image. Our neural mappings instantly find every professional shot containing your face.
         </p>
       </div>
+
+      {/* Expiry Warning Banner */}
+      {isPackageExpired && (
+        <div className="bg-amber-950/40 border border-amber-500/30 rounded-3xl p-6 flex items-center gap-4 shadow-[0_0_30px_rgba(245,158,11,0.15)] relative overflow-hidden animate-in slide-in-from-top duration-300">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0">
+            <AlertCircle className="w-6 h-6 animate-pulse" />
+          </div>
+          <div className="text-left">
+            <h3 className="font-heading font-black text-sm uppercase text-white tracking-wide">
+              Wedding Event Package Inactive
+            </h3>
+            <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+              This wedding event pool ({scannedEventTitle || "ShareMyPhoto Event"}) is currently running on an inactive or expired package. Guests can still scan selfies to find matched photos, but the host/organizer will need to renew or upgrade their plan to manage catalogs or upload additional photos.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Main Action Block */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">

@@ -29,7 +29,35 @@ const userApi = baseApi.injectEndpoints({
       },
       invalidatesTags: ["user"],
     }),
+    getAllUsersAdmin: builder.query({
+      query: () => ({
+        url: "/users/admin/users",
+        method: "GET",
+      }),
+      providesTags: ["user"],
+    }),
+    toggleUserActiveAdmin: builder.mutation({
+      query: (id) => ({
+        url: `/users/admin/users/${id}/toggle-active`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["user"],
+    }),
+    updateUserPackageAdmin: builder.mutation({
+      query: ({ id, packageId }) => ({
+        url: `/users/admin/users/${id}/update-package`,
+        method: "PATCH",
+        body: { packageId },
+      }),
+      invalidatesTags: ["user"],
+    }),
   }),
 });
 
-export const { useGetUserDashboardQuery, useSelectPackageMutation } = userApi;
+export const { 
+  useGetUserDashboardQuery, 
+  useSelectPackageMutation,
+  useGetAllUsersAdminQuery,
+  useToggleUserActiveAdminMutation,
+  useUpdateUserPackageAdminMutation
+} = userApi;

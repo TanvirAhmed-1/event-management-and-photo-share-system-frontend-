@@ -3,7 +3,7 @@
 import { useGetUserDashboardQuery } from "@/redux/features/user/userApi";
 import { useGetAllEventsQuery, useCreateEventMutation, useDeleteEventMutation } from "@/redux/features/event/eventApi";
 import { useState } from "react";
-import { Plus, Camera, Copy, ExternalLink, Calendar, Trash2, HardDrive, LayoutDashboard, Sparkles, Layers, Image as ImageIcon, X, Heart } from "lucide-react";
+import { Plus, Camera, Copy, ExternalLink, Calendar, Trash2, HardDrive, LayoutDashboard, Sparkles, Layers, Image as ImageIcon, X, Heart, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import GlassCard from "@/components/shared/GlassCard";
 import Input from "@/components/shared/Input";
@@ -101,8 +101,72 @@ export default function Dashboard() {
   // Calculate percentage used
   const storagePercentage = storageLimit > 0 ? Math.min(100, (storageUsed / storageLimit) * 100) : 0;
 
+  const getExpirationText = () => {
+    if (!dashboardData.packageInfo?.packageExpiredAt) return null;
+    const expDate = new Date(dashboardData.packageInfo.packageExpiredAt);
+    const diffTime = expDate.getTime() - new Date().getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0 || dashboardData.packageInfo.isExpired) {
+      return "Expired";
+    }
+    if (diffDays === 0 || diffTime < 1000 * 60 * 60 * 24) {
+      const hours = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60)));
+      return `${hours} hours remaining`;
+    }
+    return `${diffDays} days remaining`;
+  };
+
   return (
     <Container className="py-10 flex flex-col gap-10">
+
+      {/* Account Inactive Warning Banner */}
+      {!dashboardData.profile.isActive && (
+        <div className="bg-amber-950/60 border-2 border-amber-500/50 rounded-[2.5rem] p-8 sm:p-10 flex flex-col md:flex-row items-center gap-6 shadow-[0_0_50px_rgba(245,158,11,0.25)] relative overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+          {/* Neon Glow decorative background circles */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[80px] pointer-events-none" />
+          <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-amber-600/10 rounded-full blur-[60px] pointer-events-none" />
+
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+            <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10 animate-bounce" />
+          </div>
+          <div className="text-center md:text-left space-y-2 flex-grow">
+            <h3 className="font-heading font-black text-lg sm:text-2xl uppercase text-white tracking-wider flex items-center justify-center md:justify-start gap-2">
+              🚨 Event Pool Status: Inactive
+            </h3>
+            <p className="text-sm sm:text-lg text-gray-200 font-medium leading-relaxed">
+              Please activate your plan and contact admin. Phone:{" "}
+              <span className="font-extrabold text-[#d4af37] text-lg sm:text-2xl bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.15)] inline-block mt-1 sm:mt-0 font-mono">
+                01786924911
+              </span>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Subscription Expired Warning Banner */}
+      {dashboardData.packageInfo?.isExpired && (
+        <div className="bg-red-950/40 border border-red-500/30 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-[0_0_30px_rgba(239,68,68,0.15)] relative overflow-hidden">
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/25 flex items-center justify-center text-red-400 shrink-0">
+              <X className="w-6 h-6 animate-pulse" />
+            </div>
+            <div className="text-left">
+              <h3 className="font-heading font-black text-sm uppercase text-white tracking-wide">
+                Subscription Plan Expired
+              </h3>
+              <p className="text-[11px] text-gray-400 mt-1 leading-relaxed max-w-xl">
+                Your subscription package has expired. To resume creating events, uploading images, and utilizing the high-performance AI face finder, please upgrade or renew your plan.
+              </p>
+            </div>
+          </div>
+          <Link href="/register" className="shrink-0 relative z-10">
+            <Button className="bg-red-500 hover:bg-red-600 text-white border-none text-[10px] font-black tracking-wider uppercase px-6 py-3">
+              Upgrade Subscription
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Header & Greetings */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -110,15 +174,42 @@ export default function Dashboard() {
           <span className="text-xs font-semibold tracking-widest uppercase text-[#d4af37]">
             Event Pool Dashboard
           </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold font-heading text-white mt-1">
-            Welcome, <span className="text-gold-gradient">{dashboardData.profile.name}</span>
-          </h1>
-          <p className="text-xs text-gray-500 mt-0.5">Manage your wedding photo finder catalogs and guest accesses</p>
+          <div className="flex flex-wrap items-center gap-4 mt-1">
+            <h1 className="text-3xl sm:text-4xl font-extrabold font-heading text-white">
+              Welcome, <span className="text-gold-gradient">{dashboardData.profile.name}</span>
+            </h1>
+            
+            {/* Event Status right side of greeting */}
+            <div className="flex items-center gap-2 bg-[#0c0c10]/40 border border-white/5 px-3 py-1.5 rounded-2xl shadow-inner shrink-0">
+              <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Event Status:</span>
+              {dashboardData.profile.isActive ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 text-[9px] font-black uppercase tracking-wider shadow-[0_0_15px_rgba(34,197,94,0.15)] animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  Active
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-black uppercase tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                  Inactive
+                </span>
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">Manage your wedding photo finder catalogs and guest accesses</p>
         </div>
 
-        <Button onClick={() => setModalOpen(true)} className="md:self-center shrink-0">
+        <Button 
+          onClick={() => {
+            if (!dashboardData.profile.isActive) {
+              toast.error("Please activate your plan and contact admin. Phone: 01786924911", { duration: 5000 });
+            } else {
+              setModalOpen(true);
+            }
+          }} 
+          className={`md:self-center shrink-0 ${!dashboardData.profile.isActive ? "opacity-50 cursor-not-allowed hover:bg-amber-950/20" : ""}`}
+        >
           <Plus className="w-4 h-4 mr-2" />
-          Create Wedding
+          Create Event
         </Button>
       </div>
 
@@ -133,7 +224,7 @@ export default function Dashboard() {
           </div>
           <div className="text-left">
             <h3 className="font-heading font-black text-sm uppercase text-white tracking-wide">
-              Loving AuraFind AI?
+              Loving ShareMyPhoto AI?
             </h3>
             <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed max-w-lg">
               Share your magical wedding memory retrieval experience with other newlywed couples! Your thoughts help make our AI scanner even better.
@@ -183,6 +274,15 @@ export default function Dashboard() {
               ></div>
             </div>
 
+            {dashboardData.packageInfo?.packageExpiredAt && (
+              <div className="flex items-center justify-between text-[10px] border-t border-white/5 pt-2">
+                <span className="text-gray-400">Validity Period</span>
+                <span className={`font-bold ${dashboardData.packageInfo.isExpired ? "text-red-400 animate-pulse" : "text-[#d4af37]"}`}>
+                  Expires: {new Date(dashboardData.packageInfo.packageExpiredAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })} ({getExpirationText()})
+                </span>
+              </div>
+            )}
+
             <p className="text-[10px] text-gray-500 leading-normal">
               Storage allocation depends on your package. Uploading images automatically computes AI embeddings maps that consume storage.
             </p>
@@ -218,12 +318,12 @@ export default function Dashboard() {
         ) : events.length === 0 ? (
           <GlassCard className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-white/10" hoverEffect={false}>
             <Camera className="w-12 h-12 text-gray-600 mb-4 animate-bounce" />
-            <h3 className="text-lg font-bold font-heading text-white mb-1">No Wedding Pools Initialized</h3>
+            <h3 className="text-lg font-bold font-heading text-white mb-1">No Event Pools Initialized</h3>
             <p className="text-xs text-gray-400 max-w-sm mb-6 leading-relaxed">
-              Create your very first luxurious wedding event to start uploading photographer pools and enabling guests scanning.
+              Create your very first luxurious event to start uploading photographer pools and enabling guests scanning.
             </p>
             <Button onClick={() => setModalOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" /> Create Wedding Pool
+              <Plus className="w-4 h-4 mr-2" /> Create Event Pool
             </Button>
           </GlassCard>
         ) : (
@@ -328,7 +428,7 @@ export default function Dashboard() {
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-[#d4af37] animate-pulse" />
                   <h3 className="font-heading font-black text-sm uppercase tracking-widest text-gold-gradient">
-                    Create Wedding Event Pool
+                    Create Event Pool
                   </h3>
                 </div>
                 <button

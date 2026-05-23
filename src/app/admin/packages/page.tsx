@@ -1,6 +1,11 @@
 "use client";
 
-import { useGetAllPackagesQuery } from "@/redux/features/package/packageApi";
+import { 
+  useGetAllPackagesQuery,
+  useCreatePackageMutation,
+  useUpdatePackageMutation,
+  useDeletePackageMutation,
+} from "@/redux/features/package/packageApi";
 import { useState, useEffect } from "react";
 import { Settings, Plus, Sparkles, Check, CheckCircle2, HardDrive, DollarSign, Edit, Trash2, ArrowLeft, X, Layers, ListPlus } from "lucide-react";
 import GlassCard from "@/components/shared/GlassCard";
@@ -13,6 +18,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function ManagePackages() {
   const { data: packageResponse, isLoading, refetch } = useGetAllPackagesQuery(undefined);
+  const [createPackage] = useCreatePackageMutation();
+  const [updatePackage] = useUpdatePackageMutation();
+  const [deletePackage] = useDeletePackageMutation();
+  
   const [packages, setPackages] = useState<any[]>([]);
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -31,7 +40,7 @@ export default function ManagePackages() {
     }
   }, [packageResponse]);
 
-  const handleCreateOrEditPlan = (e: React.FormEvent) => {
+  const handleCreateOrEditPlan = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!planFormData.name || !planFormData.storageLimitMB || !planFormData.price) {
       toast.error("Please fill in all required fields!");
@@ -42,37 +51,34 @@ export default function ManagePackages() {
       ? planFormData.description.split(",").map((s) => s.trim())
       : ["High-speed matching comparison", "Guest Scanner links", "Secure cloud embeddings"];
 
-    if (editingPlanId) {
-      // Edit mode simulation
-      setPackages((prev) =>
-        prev.map((pkg) =>
-          pkg.id === editingPlanId
-            ? {
-              ...pkg,
-              name: planFormData.name,
-              storageLimitMB: Number(planFormData.storageLimitMB),
-              price: Number(planFormData.price),
-              description: descArray,
-            }
-            : pkg
-        )
-      );
-      toast.success("Successfully modified SaaS subscription plan details!");
-    } else {
-      // Create mode simulation
-      const newPlan = {
-        id: `plan-${Date.now()}`,
-        name: planFormData.name,
-        storageLimitMB: Number(planFormData.storageLimitMB),
-        price: Number(planFormData.price),
-        description: descArray,
-      };
-      setPackages((prev) => [...prev, newPlan]);
-      toast.success("Successfully created new SaaS subscription plan!");
-    }
+    try {
+      if (editingPlanId) {
+        // Edit mode API call
+        await updatePackage({
+          id: editingPlanId,
+          name: planFormData.name,
+          storageLimitMB: Number(planFormData.storageLimitMB),
+          price: Number(planFormData.price),
+          description: descArray,
+        }).unwrap();
+        toast.success("Successfully modified SaaS subscription plan details!");
+      } else {
+        // Create mode API call
+        await createPackage({
+          name: planFormData.name,
+          storageLimitMB: Number(planFormData.storageLimitMB),
+          price: Number(planFormData.price),
+          description: descArray,
+        }).unwrap();
+        toast.success("Successfully created new SaaS subscription plan!");
+      }
 
-    setModalOpen(false);
-    resetForm();
+      setModalOpen(false);
+      resetForm();
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.data?.message || "Failed to save package plan");
+    }
   };
 
   const handleEditClick = (pkg: any) => {
@@ -86,9 +92,14 @@ export default function ManagePackages() {
     setModalOpen(true);
   };
 
-  const handleDeletePlan = (pkgId: string, name: string) => {
-    setPackages((prev) => prev.filter((p) => p.id !== pkgId));
-    toast.success(`Deleted SaaS subscription plan "${name}"`);
+  const handleDeletePlan = async (pkgId: string, name: string) => {
+    try {
+      await deletePackage(pkgId).unwrap();
+      toast.success(`Deleted SaaS subscription plan "${name}"`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.data?.message || "Failed to delete package plan");
+    }
   };
 
   const resetForm = () => {

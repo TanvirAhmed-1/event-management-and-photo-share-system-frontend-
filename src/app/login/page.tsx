@@ -11,11 +11,16 @@ import Input from "@/components/shared/Input";
 import Container from "@/components/shared/Container";
 import Button from "@/components/ui/Button";
 
+type FormDataType = {
+  email: string;
+  password: string;
+}
+
 export default function Login() {
   const router = useRouter();
   const [loginUser, { isLoading }] = useLoginMutation();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     email: "",
     password: "",
   });
@@ -26,6 +31,7 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!formData.email || !formData.password) {
       toast.error("Please fill in all fields!");
       return;

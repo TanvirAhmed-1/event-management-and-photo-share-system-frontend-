@@ -6,7 +6,7 @@ import { removeTokenCookie } from "../server/storeCookies";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const dynamicBaseQuery = async (args: any, api: any, extraOptions: any) => {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://photo-finder-saas-backend.onrender.com/api";
     const rawBaseQuery = fetchBaseQuery({
       baseUrl,
       prepareHeaders: (headers, { getState }) => {

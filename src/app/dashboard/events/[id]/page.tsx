@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useGetEventByIdQuery } from "@/redux/features/event/eventApi";
 import { useGetPhotosByEventQuery, useUploadPhotosMutation, useDeletePhotoMutation } from "@/redux/features/photo/photoApi";
+import { useReprocessEventMutation } from "@/redux/features/ai/aiApi";
 import { useAppSelector } from "@/redux/hook";
 import { useState } from "react";
 import { ArrowLeft, Upload, Download, Trash2, Calendar, FileImage, ImageIcon, ShieldCheck, Sparkles } from "lucide-react";
@@ -22,11 +23,38 @@ export default function EventDetail() {
   const { data: photosResponse, isLoading: photosLoading, refetch: refetchPhotos } = useGetPhotosByEventQuery(id);
   const [uploadPhotos, { isLoading: uploadLoading }] = useUploadPhotosMutation();
   const [deletePhoto] = useDeletePhotoMutation();
+  const [reprocessEvent, { isLoading: reprocessLoading }] = useReprocessEventMutation();
 
   const [uploadOpen, setUploadOpen] = useState(false);
 
   const event = eventResponse?.data || null;
   const photos = photosResponse?.data || [];
+
+  const handleReprocess = async () => {
+    if (photos.length === 0) {
+      toast.error("No photos available in this event pool!");
+      return;
+    }
+
+    try {
+      toast.loading("Invoking AI models & scanning all photos for faces...", { id: "reprocess-toast" });
+      const res = await reprocessEvent(id).unwrap();
+      if (res.success) {
+        toast.success(
+          `AI Scanning completed! Scanned ${res.data.processedCount}/${res.data.totalPhotos} photos, detected ${res.data.totalFacesDetected} faces in total!`,
+          { id: "reprocess-toast", duration: 5000 }
+        );
+        refetchPhotos();
+        refetchEvent();
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(
+        err?.data?.message || "Failed to start AI Face Scan. Please verify that the Flask AI service is running on Port 5000.",
+        { id: "reprocess-toast", duration: 5000 }
+      );
+    }
+  };
 
   const handleUploadPhotos = async (files: File[]) => {
     const formData = new FormData();
@@ -191,6 +219,16 @@ export default function EventDetail() {
             <Download className="w-4 h-4 mr-2" />
             Download ZIP
           </Button>
+
+          <Button
+            variant="secondary"
+            onClick={handleReprocess}
+            disabled={photos.length === 0 || reprocessLoading}
+            className="flex-grow sm:flex-grow-0 border border-[#d4af37]/30 text-[#d4af37] hover:bg-[#d4af37]/10"
+          >
+            <Sparkles className="w-4 h-4 mr-2 text-[#d4af37] animate-pulse" />
+            AI Face Scan
+          </Button>
         </div>
       </div>
 
@@ -252,9 +290,15 @@ export default function EventDetail() {
                   </button>
 
                   <div className="flex items-center justify-between text-[8px] sm:text-[10px] text-gray-400 font-semibold truncate pr-2">
-                    <span className="flex items-center gap-1 bg-black/50 px-2 py-0.5 rounded-full border border-white/5">
-                      <ShieldCheck className="w-3 h-3 text-[#d4af37]" /> AI EMBEDDED
-                    </span>
+                    {photo.faces && photo.faces.length > 0 ? (
+                      <span className="flex items-center gap-1 bg-emerald-950/50 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                        <ShieldCheck className="w-3 h-3 text-emerald-400" /> {photo.faces.length} {photo.faces.length === 1 ? "Face" : "Faces"}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 bg-amber-950/50 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20" title="AI faces not processed or no face detected. Click 'AI Face Scan' to reprocess.">
+                        <Sparkles className="w-3 h-3 text-amber-400 animate-pulse" /> No Faces
+                      </span>
+                    )}
                     <span>{photo.sizeMB.toFixed(2)} MB</span>
                   </div>
                 </div>
