@@ -18,7 +18,7 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    "inline-flex items-center justify-center rounded-full font-heading font-semibold uppercase tracking-wider text-xs transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#d4af37]/50 disabled:opacity-50 disabled:pointer-events-none hover:scale-[1.02] active:scale-[0.98]";
+    "inline-flex items-center justify-center rounded-full font-heading font-semibold uppercase tracking-wider text-xs transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#d4af37]/50 disabled:opacity-50 disabled:pointer-events-none hover:scale-[1.02] active:scale-[0.98] cursor-pointer";
 
   const variants = {
     primary:

@@ -7,11 +7,11 @@ import Container from "@/components/shared/Container";
 
 // Split subcomponents from ui/home
 import Hero from "@/components/ui/home/Hero";
-import ScannerIllustration from "@/components/ui/home/ScannerIllustration";
+import VideoShowcase from "@/components/ui/home/VideoShowcase";
 import HowItWorks from "@/components/ui/home/HowItWorks";
 import PlatformBenefits from "@/components/ui/home/PlatformBenefits";
 import PricingPlans from "@/components/ui/home/PricingPlans";
-import ReviewSlider from "@/components/ReviewSlider";
+import Testimonials from "@/components/ui/home/Testimonials";
 
 export default function Home() {
   const router = useRouter();
@@ -90,6 +90,21 @@ export default function Home() {
 
       {/* Absolute Decorative Floating Background Elements */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        {/* Top Hero Wedding Background Watermark Image */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[800px] pointer-events-none z-0 opacity-[0.06] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_bottom,black_40%,transparent)]"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1920&auto=format&fit=crop')`
+          }}
+        />
+
+        {/* Bottom Section Wedding Background Watermark Image */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[900px] pointer-events-none z-0 opacity-[0.04] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_top,black_30%,transparent)]"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1920&auto=format&fit=crop')`
+          }}
+        />
         {/* Floating Particle 1 */}
         <motion.div
           animate={{
@@ -136,11 +151,11 @@ export default function Home() {
 
       <Container className="flex flex-col gap-24 py-16 sm:py-24 relative z-10">
 
-        {/* 1. Hero Section */}
+        {/* 1. Hero Section (With Auto-playing Showcase) */}
         <Hero containerVariants={containerVariants} itemVariants={itemVariants} />
 
-        {/* 2. Interactive Mock Scanner Illustration */}
-        <ScannerIllustration floatVariants={floatVariants} />
+        {/* 2. Video Showcase / Demo Explainer */}
+        <VideoShowcase />
 
         {/* 3. How It Works Step-by-Step */}
         <HowItWorks />
@@ -155,21 +170,8 @@ export default function Home() {
           onSelectPackage={handleSelectPackage}
         />
 
-        {/* 6. Love From Wedding Couples & Guests (Reviews Slider) */}
-        <section className="space-y-10 w-full relative">
-          <div className="text-center space-y-3">
-            <span className="text-xs font-semibold tracking-widest uppercase text-[#d4af37]">
-              Client Stories
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black font-heading tracking-tight text-white uppercase">
-              Love From Wedding Couples
-            </h2>
-            <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
-              Read how ShareEventPhoto AI brought smiles to couples and wedding guests by finding their memories instantly.
-            </p>
-          </div>
-          <ReviewSlider />
-        </section>
+        {/* 6. Love From Wedding Couples & Guests (Scrolling Testimonials) */}
+        <Testimonials />
 
       </Container>
     </div>

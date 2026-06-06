@@ -81,7 +81,7 @@ export default function PricingPlans({ packages, packagesLoading, onSelectPackag
                     <h3 className="text-base font-heading font-bold text-white mb-2">{pkg.name}</h3>
                     <div className="flex items-baseline gap-1.5 mb-6">
                       <span className="text-3xl sm:text-4xl font-extrabold font-heading text-white">
-                        ${pkg.price}
+                        ৳{pkg.price}
                       </span>
                       <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">/ wedding pool</span>
                     </div>

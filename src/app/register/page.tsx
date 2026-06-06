@@ -175,7 +175,7 @@ function RegisterForm() {
                         </div>
                         <div className="flex items-center gap-4 shrink-0 pt-0.5">
                           <div className="text-right">
-                            <div className="text-base font-extrabold text-white font-heading">${pkg.price}</div>
+                            <div className="text-base font-extrabold text-white font-heading">৳{pkg.price}</div>
                             <div className="text-[8px] text-gray-500 uppercase tracking-widest font-bold mt-0.5">
                               one-time
                             </div>
@@ -237,7 +237,7 @@ function RegisterForm() {
                   </h4>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-black text-[#d4af37] font-heading">${activePackage?.price}</span>
+                  <span className="text-sm font-black text-[#d4af37] font-heading">৳{activePackage?.price}</span>
                   <button
                     type="button"
                     onClick={() => setSelectedPackageId(null)}

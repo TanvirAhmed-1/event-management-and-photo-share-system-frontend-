@@ -29,8 +29,11 @@ export function proxy(req: NextRequest) {
   const isRegisterPage = pathname === "/register";
   const isLandingPage = pathname === "/";
   const isGuestScannerPage = pathname.startsWith("/guest/");
+  const aboutPage = pathname.startsWith("/about");
+  const contactPage = pathname.startsWith("/contact");
+  const guidePage = pathname.startsWith("/guide");
 
-  const isPublicRoute = isLoginPage || isRegisterPage || isLandingPage || isGuestScannerPage;
+  const isPublicRoute = isLoginPage || isRegisterPage || isLandingPage || isGuestScannerPage || aboutPage || contactPage || guidePage;
 
   // If trying to access private page without being authenticated
   if (!token && !isPublicRoute) {

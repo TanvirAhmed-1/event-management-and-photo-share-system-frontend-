@@ -3,16 +3,18 @@
 import { useParams } from "next/navigation";
 import { useSearchFaceMutation } from "@/redux/features/ai/aiApi";
 import { useState, useRef } from "react";
-import { Camera, Upload, RefreshCw, Download, Sparkles, AlertCircle, Play, Image as ImageIcon, CameraOff, Eye } from "lucide-react";
+import { Camera, Upload, RefreshCw, Download, Sparkles, AlertCircle, Play, Image as ImageIcon, CameraOff, Eye, X } from "lucide-react";
 import FaceScanner from "@/components/FaceScanner";
 import GlassCard from "@/components/shared/GlassCard";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import Container from "@/components/shared/Container";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function GuestScanner() {
   const { eventId } = useParams() as { eventId: string };
   const [searchFace, { isLoading: matchingLoading }] = useSearchFaceMutation();
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
   const [selfieFile, setSelfieFile] = useState<File | null>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
@@ -168,6 +170,8 @@ export default function GuestScanner() {
           Snap a selfie or upload an image. Our neural mappings instantly find every professional shot containing your face.
         </p>
       </div>
+
+
 
       {/* Expiry Warning Banner */}
       {isPackageExpired && (
@@ -376,6 +380,85 @@ export default function GuestScanner() {
           </div>
         </div>
       )}
+      {/* Video Tutorial Modal Popup */}
+      <AnimatePresence>
+        {isTutorialOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6 md:p-10"
+            onClick={() => setIsTutorialOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.92, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.92, y: 15 }}
+              transition={{ type: "spring", damping: 25, stiffness: 250 }}
+              className="relative w-full max-w-4xl aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/85 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-white/20 transition-all duration-200 z-50 cursor-pointer"
+                onClick={() => setIsTutorialOpen(false)}
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <video
+                src="/Hailuo_Video_Create a 60-second premium, mo_519695290105622534 (2).mp4"
+                className="w-full h-full object-cover"
+                controls
+                autoPlay
+                playsInline
+                loop
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Visual Walkthrough Video Banner */}
+      <GlassCard className="p-6 border border-white/5 bg-[#0a0a0d]/40 space-y-6">
+
+        {/* Top: Text Details */}
+        <div className="space-y-2 text-center w-full mb-6">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gold-dark-gradient border border-[#d4af37]/25 text-[#d4af37] text-[9px] font-black uppercase tracking-wider animate-pulse">
+              <Play className="w-2.5 h-2.5 fill-[#d4af37]" /> Video Tutorial
+            </span>
+            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+              ১ মিনিটের ভিডিও টিউটোরিয়াল
+            </span>
+          </div>
+          <h2 className="text-base sm:text-lg font-extrabold font-heading text-white">
+            How to find your photos? / কীভাবে আপনার ছবিগুলো পাবেন?
+          </h2>
+          <p className="text-xs text-gray-400 leading-normal max-w-2xl mx-auto">
+            Watch this 1-minute quick video to see how to capture a clear selfie and retrieve all your wedding photographs instantly.
+            <span className="block mt-0.5 text-gray-500 font-medium">আপনার সেলফি দিয়ে বিয়ের ছবিগুলো বের করার নিয়ম দেখতে এই ছোট ১ মিনিটের ভিডিওটি দেখুন।</span>
+          </p>
+        </div>
+
+        {/* Bottom: Large Video Player/Trigger */}
+        <div className="w-full max-w-4xl mx-auto">
+          <div
+            onClick={() => setIsTutorialOpen(true)}
+            className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black group cursor-pointer w-full shadow-lg"
+          >
+            <video
+              src="/Hailuo_Video_Create a 60-second premium, mo_519695290105622534 (2).mp4"
+              className="w-full h-full object-cover filter brightness-[0.75] group-hover:scale-[1.01] transition-transform duration-500"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+
+          </div>
+        </div>
+      </GlassCard>
     </Container>
   );
 }

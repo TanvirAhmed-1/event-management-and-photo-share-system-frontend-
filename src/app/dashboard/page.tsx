@@ -3,7 +3,7 @@
 import { useGetUserDashboardQuery } from "@/redux/features/user/userApi";
 import { useGetAllEventsQuery, useCreateEventMutation, useDeleteEventMutation } from "@/redux/features/event/eventApi";
 import { useState } from "react";
-import { Plus, Camera, Copy, ExternalLink, Calendar, Trash2, HardDrive, LayoutDashboard, Sparkles, Layers, Image as ImageIcon, X, Heart, AlertCircle } from "lucide-react";
+import { Plus, Camera, Copy, ExternalLink, Calendar, Trash2, HardDrive, LayoutDashboard, Sparkles, Layers, Image as ImageIcon, X, Heart, AlertCircle, Play, QrCode, Download } from "lucide-react";
 import toast from "react-hot-toast";
 import GlassCard from "@/components/shared/GlassCard";
 import Input from "@/components/shared/Input";
@@ -22,6 +22,9 @@ export default function Dashboard() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [activeShareEvent, setActiveShareEvent] = useState<{ id: string; title: string } | null>(null);
   const [newEventData, setNewEventData] = useState({
     title: "",
     coverImage: "",
@@ -40,6 +43,172 @@ export default function Dashboard() {
       const shareUrl = `${window.location.origin}/guest/${eventId}`;
       navigator.clipboard.writeText(shareUrl);
       toast.success("Guest scanner link copied to clipboard!");
+    }
+  };
+
+  const handleDownloadQrCode = async (eventId: string, eventTitle: string) => {
+    try {
+      toast.loading("Generating printable QR card...", { id: "qr-toast" });
+      const shareUrl = `${window.location.origin}/guest/${eventId}`;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(shareUrl)}`;
+
+      // Create a canvas element
+      const canvas = document.createElement("canvas");
+      canvas.width = 800;
+      canvas.height = 1200;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Could not get canvas context");
+
+      // 1. Draw luxury background
+      const gradient = ctx.createLinearGradient(0, 0, 0, 1200);
+      gradient.addColorStop(0, "#08080c");
+      gradient.addColorStop(0.5, "#0d0d14");
+      gradient.addColorStop(1, "#050507");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 800, 1200);
+
+      // 2. Draw golden double borders
+      ctx.strokeStyle = "#d4af37";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(30, 30, 740, 1140);
+      
+      ctx.strokeStyle = "rgba(212, 175, 55, 0.3)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(40, 40, 720, 1120);
+
+      // Decorative corner brackets
+      const drawCorners = (x: number, y: number, w: number, h: number, size: number) => {
+        ctx.strokeStyle = "#d4af37";
+        ctx.lineWidth = 5;
+        // Top Left
+        ctx.beginPath(); ctx.moveTo(x + size, y); ctx.lineTo(x, y); ctx.lineTo(x, y + size); ctx.stroke();
+        // Top Right
+        ctx.beginPath(); ctx.moveTo(x + w - size, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + size); ctx.stroke();
+        // Bottom Left
+        ctx.beginPath(); ctx.moveTo(x, y + h - size); ctx.lineTo(x, y + h); ctx.lineTo(x + size, y + h); ctx.stroke();
+        // Bottom Right
+        ctx.beginPath(); ctx.moveTo(x + w - size, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - size); ctx.stroke();
+      };
+      drawCorners(48, 48, 704, 1104, 30);
+
+      // 3. Draw Header Texts
+      ctx.fillStyle = "#d4af37";
+      ctx.font = "bold 32px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("SHARE EVENT PHOTOS", 400, 120);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "normal 22px sans-serif";
+      ctx.fillText("Scan to find your photos automatically!", 400, 160);
+      ctx.fillStyle = "#a0a0ab";
+      ctx.font = "normal 18px sans-serif";
+      ctx.fillText("আপনার সব ছবি খুঁজে পেতে কিউআর কোডটি স্ক্যান করুন!", 400, 195);
+
+      // 4. Load & Draw the QR Code
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const qrImg = new Image();
+      qrImg.src = blobUrl;
+
+      await new Promise((resolve, reject) => {
+        qrImg.onload = resolve;
+        qrImg.onerror = () => reject(new Error("Failed to load QR code image"));
+      });
+
+      // Draw white card background for QR code
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      // Draw rounded rectangle manually for compatibility
+      const x = 200, y = 260, w = 400, h = 400, r = 30;
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+      ctx.fill();
+
+      // Draw QR code image on top of white card background
+      ctx.drawImage(qrImg, 225, 285, 350, 350);
+      URL.revokeObjectURL(blobUrl);
+
+      // 5. Draw Event Name Card
+      const goldGrad = ctx.createLinearGradient(150, 720, 650, 720);
+      goldGrad.addColorStop(0, "#b8860b");
+      goldGrad.addColorStop(0.5, "#e6ca65");
+      goldGrad.addColorStop(1, "#b8860b");
+      ctx.fillStyle = goldGrad;
+      ctx.beginPath();
+      
+      const ex = 100, ey = 720, ew = 600, eh = 90, er = 15;
+      ctx.moveTo(ex + er, ey);
+      ctx.arcTo(ex + ew, ey, ex + ew, ey + eh, er);
+      ctx.arcTo(ex + ew, ey + eh, ex, ey + eh, er);
+      ctx.arcTo(ex, ey + eh, ex, ey, er);
+      ctx.arcTo(ex, ey, ex + ew, ey, er);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#000000";
+      ctx.font = "bold 30px sans-serif";
+      ctx.fillText(eventTitle.toUpperCase(), 400, 775);
+
+      // 6. Draw How to Use Instructions
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 24px sans-serif";
+      ctx.fillText("INSTRUCTIONS / নিয়মাবলী", 400, 875);
+
+      // Draw underline for instructions
+      ctx.strokeStyle = "rgba(212, 175, 55, 0.4)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(250, 890); ctx.lineTo(550, 890); ctx.stroke();
+
+      const instructions = [
+        "1. Scan this QR Code with your phone camera.",
+        "   আপনার ফোনের ক্যামেরা দিয়ে কিউআর কোডটি স্ক্যান করুন।",
+        "2. Snap a quick selfie to search your photos.",
+        "   খুঁজে পেতে আপনার একটি সুন্দর সেলফি তুলুন।",
+        "3. Download all matched high-resolution photos!",
+        "   ম্যাচিং হওয়া আপনার সব ছবি একসাথে ডাউনলোড করুন!"
+      ];
+
+      ctx.textAlign = "left";
+      let yOffset = 940;
+      instructions.forEach((line, idx) => {
+        if (idx % 2 === 0) {
+          ctx.fillStyle = "#d4af37";
+          ctx.font = "bold 18px sans-serif";
+          ctx.fillText(line, 120, yOffset);
+          yOffset += 28;
+        } else {
+          ctx.fillStyle = "#a0a0ab";
+          ctx.font = "normal 16px sans-serif";
+          ctx.fillText(line, 140, yOffset);
+          yOffset += 35;
+        }
+      });
+
+      // Footer brand/logo
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+      ctx.font = "italic 16px sans-serif";
+      ctx.fillText("Powered by ShareEventPhoto AI", 400, 1160);
+
+      // 7. Download Canvas as Image
+      const cardImageUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = cardImageUrl;
+      link.download = `${eventTitle.toLowerCase().replace(/[^a-z0-9]/g, "-")}-printable-qr-card.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success("Printable QR card downloaded successfully!", { id: "qr-toast" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate printable QR card.", { id: "qr-toast" });
     }
   };
 
@@ -305,6 +474,83 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Video Tutorial Walkthrough Section */}
+      <GlassCard className="border border-white/5 bg-[#0a0a0e]/50 p-6 sm:p-8 rounded-2xl relative overflow-hidden" hoverEffect={true}>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          {/* Left Column: Descriptions */}
+          <div className="lg:col-span-5 space-y-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-dark-gradient border border-[#d4af37]/25 text-[#d4af37] text-[10px] font-black uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" /> Walkthrough Guide
+            </span>
+            
+            <h3 className="text-xl sm:text-2xl font-black font-heading text-white">
+              Platform Tutorial <span className="text-[#d4af37]">/ ভিডিও টিউটোরিয়াল</span>
+            </h3>
+            
+            <p className="text-xs text-gray-400 leading-relaxed font-medium">
+              Watch this video to learn how to create events, upload professional photo pools, and share the AI face-matcher link with guests.
+              <span className="block mt-1 text-[#d4af37]/90">ভিডিওটি দেখে জেনে নিন কীভাবে ইভেন্ট তৈরি করবেন, ছবি আপলোড করবেন এবং অতিথিদের সাথে লিংক শেয়ার করবেন।</span>
+            </p>
+
+            <div className="space-y-3 pt-2">
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded bg-[#d4af37]/10 flex items-center justify-center text-[#d4af37] text-xs font-bold shrink-0 mt-0.5 font-mono">1</div>
+                <div className="text-xs text-gray-300">
+                  <strong className="text-white">Create Event:</strong> Enter title & cover image.
+                  <span className="block text-[11px] text-gray-500 font-semibold">ইভেন্ট তৈরি করুন: নাম ও কভার ছবি দিয়ে শুরু করুন।</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded bg-[#d4af37]/10 flex items-center justify-center text-[#d4af37] text-xs font-bold shrink-0 mt-0.5 font-mono">2</div>
+                <div className="text-xs text-gray-300">
+                  <strong className="text-white">Upload Photos:</strong> Drag professional photo files.
+                  <span className="block text-[11px] text-gray-500 font-semibold">ছবি আপলোড করুন: ফটোগ্রাফারের তোলা সব ছবি ড্র্যাগ অ্যান্ড ড্রপ করুন।</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded bg-[#d4af37]/10 flex items-center justify-center text-[#d4af37] text-xs font-bold shrink-0 mt-0.5 font-mono">3</div>
+                <div className="text-xs text-gray-300">
+                  <strong className="text-white">AI Face Match & Share:</strong> Guests scan QR & download.
+                  <span className="block text-[11px] text-gray-500 font-semibold">লিংক শেয়ার ও এআই ম্যাচিং: অতিথিরা কিউআর স্ক্যান করে ছবি পেয়ে যাবেন।</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Autoplaying Video Preview */}
+          <div className="lg:col-span-7">
+            <div 
+              onClick={() => setIsVideoOpen(true)}
+              className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black shadow-lg group cursor-pointer"
+            >
+              <video
+                src="/demo.mp4"
+                className="w-full h-full object-cover filter brightness-[0.7] group-hover:scale-[1.02] transition-transform duration-500"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <motion.div
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-16 h-16 rounded-full bg-gold-dark-gradient border border-[#d4af37]/50 flex items-center justify-center text-white shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:scale-110 transition-transform duration-300"
+                >
+                  <Play className="w-6 h-6 fill-white ml-1 text-white" />
+                </motion.div>
+              </div>
+              <span className="absolute bottom-3 right-3 bg-black/80 backdrop-blur px-2.5 py-1 rounded text-[8px] font-mono text-gray-400 uppercase tracking-widest">
+                Walkthrough Video
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </GlassCard>
+
       {/* Events List Catalog */}
       <div className="flex-grow flex flex-col gap-6">
         <h2 className="text-xl sm:text-2xl font-extrabold font-heading text-white flex items-center gap-2">
@@ -367,12 +613,15 @@ export default function Dashboard() {
                       </Link>
 
                       <button
-                        onClick={() => handleCopyLink(event.id)}
-                        className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 text-[10px] rounded-full border border-white/5 hover:border-[#d4af37]/30 text-gray-400 hover:text-white bg-white/5 hover:bg-[#d4af37]/5 transition-all font-semibold uppercase tracking-wider hover:scale-[1.02]"
-                        title="Copy Guest Face-Scanner Link"
+                        onClick={() => {
+                          setActiveShareEvent({ id: event.id, title: event.title });
+                          setShareModalOpen(true);
+                        }}
+                        className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 text-[10px] rounded-full border border-white/5 hover:border-[#d4af37]/30 text-gray-400 hover:text-white bg-white/5 hover:bg-[#d4af37]/5 transition-all font-semibold uppercase tracking-wider hover:scale-[1.02] cursor-pointer"
+                        title="Share Event & Download QR"
                       >
-                        <Copy className="w-3 h-3" />
-                        Copy Link
+                        <QrCode className="w-3.5 h-3.5" />
+                        Share & QR
                       </button>
                     </div>
 
@@ -388,7 +637,7 @@ export default function Dashboard() {
 
                       <button
                         onClick={() => handleDeleteEvent(event.id, event.title)}
-                        className="text-gray-600 hover:text-red-400 p-1.5 rounded transition-all hover:scale-105"
+                        className="text-gray-600 hover:text-red-400 p-1.5 rounded transition-all hover:scale-105 cursor-pointer"
                         title="Delete Pool"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -505,6 +754,165 @@ export default function Dashboard() {
       </AnimatePresence>
 
       <ReviewModal isOpen={reviewModalOpen} onClose={() => setReviewModalOpen(false)} />
+
+      {/* Video Modal Player Popup */}
+      <AnimatePresence>
+        {isVideoOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6 md:p-10"
+            onClick={() => setIsVideoOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.92, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.92, y: 15 }}
+              transition={{ type: "spring", damping: 25, stiffness: 250 }}
+              className="relative w-full max-w-4xl aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/80 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-white/20 transition-all duration-200 z-50 cursor-pointer"
+                onClick={() => setIsVideoOpen(false)}
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <video
+                src="/demo.mp4"
+                className="w-full h-full object-cover"
+                controls
+                autoPlay
+                playsInline
+                loop
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Share & QR Code Modal */}
+      <AnimatePresence>
+        {shareModalOpen && activeShareEvent && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4"
+            onClick={() => {
+              setShareModalOpen(false);
+              setActiveShareEvent(null);
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: "spring", damping: 20, stiffness: 120 }}
+              className="w-full max-w-md glass-panel rounded-3xl overflow-hidden border border-[#d4af37]/35 bg-[#08080b]/95 relative shadow-[0_0_50px_rgba(212,175,55,0.15)] p-6 space-y-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                <div className="flex items-center gap-2">
+                  <QrCode className="w-5 h-5 text-[#d4af37]" />
+                  <h3 className="font-heading font-black text-sm uppercase tracking-widest text-gold-gradient">
+                    Printable QR Invitation Card
+                  </h3>
+                </div>
+                <button
+                  onClick={() => {
+                    setShareModalOpen(false);
+                    setActiveShareEvent(null);
+                  }}
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Printable Card Preview Mockup */}
+              <div className="relative border border-[#d4af37]/40 rounded-2xl bg-[#050507] p-5 space-y-4 text-center overflow-hidden shadow-inner">
+                {/* Decorative golden corner details */}
+                <div className="absolute top-2 left-2 w-4 h-4 border-t border-l border-[#d4af37]/50"></div>
+                <div className="absolute top-2 right-2 w-4 h-4 border-t border-r border-[#d4af37]/50"></div>
+                <div className="absolute bottom-2 left-2 w-4 h-4 border-b border-l border-[#d4af37]/50"></div>
+                <div className="absolute bottom-2 right-2 w-4 h-4 border-b border-r border-[#d4af37]/50"></div>
+
+                {/* Card Title */}
+                <div className="space-y-0.5">
+                  <h4 className="text-[10px] font-black uppercase text-[#d4af37] tracking-widest">Share Event Photos</h4>
+                  <p className="text-[8px] text-gray-400">Scan to find your photos automatically! / ছবিগুলো পেতে স্ক্যান করুন!</p>
+                </div>
+
+                {/* QR Code Wrapper */}
+                <div className="bg-white p-3 rounded-xl w-36 h-36 mx-auto flex items-center justify-center shadow-lg border-2 border-[#d4af37]/20">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+                      `${typeof window !== "undefined" ? window.location.origin : ""}/guest/${activeShareEvent.id}`
+                    )}`}
+                    alt="Event QR Code"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                {/* Event Name Gold Badge */}
+                <div className="py-1 px-4 bg-gold-gradient text-black rounded-lg inline-block max-w-full font-heading font-black text-xs uppercase tracking-wider shadow">
+                  {activeShareEvent.title}
+                </div>
+
+                {/* Instructions */}
+                <div className="text-[8px] text-gray-400 space-y-1 pt-1.5 border-t border-white/5 text-left max-w-xs mx-auto">
+                  <p className="font-bold text-[#d4af37] uppercase tracking-wide">INSTRUCTIONS / নিয়মাবলী:</p>
+                  <p>1. Scan QR code using phone camera / কোডটি স্ক্যান করুন।</p>
+                  <p>2. Upload your clear selfie / একটি সুন্দর সেলফি আপলোড করুন।</p>
+                  <p>3. Download matching photos instantly / আপনার সব ছবি ডাউনলোড করুন!</p>
+                </div>
+              </div>
+
+              {/* Share URL Input */}
+              <div className="space-y-2">
+                <label className="block text-left text-[9px] font-black uppercase text-[#d4af37] tracking-widest">
+                  Guest Invitation Link
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${typeof window !== "undefined" ? window.location.origin : ""}/guest/${activeShareEvent.id}`}
+                    className="w-full px-4 py-2.5 bg-[#050507] border border-white/5 rounded-xl text-xs text-gray-300 font-mono focus:outline-none select-all"
+                  />
+                  <button
+                    onClick={() => {
+                      handleCopyLink(activeShareEvent.id);
+                    }}
+                    className="px-4 rounded-xl bg-[#d4af37] text-black font-semibold text-xs hover:bg-white transition-all uppercase tracking-wider shrink-0 cursor-pointer"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="pt-2 flex flex-col gap-3">
+                <Button
+                  onClick={() => handleDownloadQrCode(activeShareEvent.id, activeShareEvent.title)}
+                  className="w-full py-3.5 text-xs font-bold uppercase tracking-wider rounded-xl shadow-[0_0_15px_rgba(212,175,55,0.2)] hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Download className="w-4 h-4 animate-bounce" /> Download Printable Flyer (PNG)
+                </Button>
+                <p className="text-[9px] text-gray-500 leading-normal text-center">
+                  This generates a high-resolution printable table tent card containing the QR code, event title, and guest scan steps.
+                </p>
+              </div>
+
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Container>
   );
 }
