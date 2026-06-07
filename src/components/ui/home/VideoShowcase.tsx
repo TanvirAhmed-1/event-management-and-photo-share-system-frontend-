@@ -76,13 +76,14 @@ export default function VideoShowcase() {
             >
               {/* Autoplaying, muted, looping video uploaded by user */}
               <video
-                src="/demo1.mp4"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 "
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 autoPlay
                 muted
                 loop
                 playsInline
-              />
+              >
+                <source src="/demo1.mp4" type="video/mp4" />
+              </video>
 
               {/* Dark overlay with grid/vibe */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/80 pointer-events-none" />
@@ -125,13 +126,14 @@ export default function VideoShowcase() {
 
               {/* Custom Video Playing with sound unmuted */}
               <video
-                src="/demo.mp4"
                 className="w-full h-full object-cover"
                 controls
                 autoPlay
                 playsInline
                 loop
-              />
+              >
+                <source src="/demo1.mp4" type="video/mp4" />
+              </video>
             </motion.div>
           </motion.div>
         )}

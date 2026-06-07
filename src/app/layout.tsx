@@ -34,7 +34,12 @@ export const metadata: Metadata = {
   authors: [{ name: "Tanvir Ahmed", url: "https://tanvirahmed1.netlify.app/" }],
   creator: "Tanvir Ahmed",
   icons: {
-    icon: "/favicon.svg",
+    icon: [
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml",
+      },
+    ],
     shortcut: "/favicon.svg",
     apple: "/favicon.svg",
   },

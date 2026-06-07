@@ -526,13 +526,14 @@ export default function Dashboard() {
               className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black shadow-lg group cursor-pointer"
             >
               <video
-                src="/demo.mp4"
                 className="w-full h-full object-cover filter brightness-[0.7] group-hover:scale-[1.02] transition-transform duration-500"
                 autoPlay
                 muted
                 loop
                 playsInline
-              />
+              >
+                <source src="/demo1.mp4" type="video/mp4" />
+              </video>
               <div className="absolute inset-0 flex items-center justify-center">
                 <motion.div
                   animate={{ scale: [1, 1.05, 1] }}
@@ -782,13 +783,14 @@ export default function Dashboard() {
               </button>
 
               <video
-                src="/demo.mp4"
                 className="w-full h-full object-cover"
                 controls
                 autoPlay
                 playsInline
                 loop
-              />
+              >
+                <source src="/demo1.mp4" type="video/mp4" />
+              </video>
             </motion.div>
           </motion.div>
         )}

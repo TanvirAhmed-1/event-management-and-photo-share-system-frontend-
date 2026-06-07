@@ -407,13 +407,14 @@ export default function GuestScanner() {
               </button>
 
               <video
-                src="/Hailuo_Video_Create a 60-second premium, mo_519695290105622534 (2).mp4"
                 className="w-full h-full object-cover"
                 controls
                 autoPlay
                 playsInline
                 loop
-              />
+              >
+                <source src="/promo.mp4" type="video/mp4" />
+              </video>
             </motion.div>
           </motion.div>
         )}
@@ -448,13 +449,14 @@ export default function GuestScanner() {
             className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black group cursor-pointer w-full shadow-lg"
           >
             <video
-              src="/Hailuo_Video_Create a 60-second premium, mo_519695290105622534 (2).mp4"
               className="w-full h-full object-cover filter brightness-[0.75] group-hover:scale-[1.01] transition-transform duration-500"
               autoPlay
               muted
               loop
               playsInline
-            />
+            >
+              <source src="/promo.mp4" type="video/mp4" />
+            </video>
 
           </div>
         </div>

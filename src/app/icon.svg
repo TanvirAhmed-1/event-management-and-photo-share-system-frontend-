@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <circle cx="50" cy="50" r="48" fill="#060608" stroke="#d4af37" stroke-width="1.5"/>
+  <!-- Elegant Sparkle Star representing AI Aura and Wedding Glamour -->
+  <path d="M50 15 C50 35 35 50 15 50 C35 50 50 65 50 85 C50 65 65 50 85 50 C65 50 50 35 50 15 Z" fill="url(#goldGrad)"/>
+  <!-- Sparkling reflection core -->
+  <circle cx="50" cy="50" r="5" fill="#ffffff"/>
+  <defs>
+    <linearGradient id="goldGrad" x1="15" y1="15" x2="85" y2="85" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#d4af37" />
+      <stop offset="35%" stop-color="#f9e0a2" />
+      <stop offset="70%" stop-color="#b76e79" />
+      <stop offset="100%" stop-color="#9a4d55" />
+    </linearGradient>
+  </defs>
+</svg>
