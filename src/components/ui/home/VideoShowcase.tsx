@@ -76,7 +76,7 @@ export default function VideoShowcase() {
             >
               {/* Autoplaying, muted, looping video uploaded by user */}
               <video
-                src="/demo.mp4"
+                src="/demo1.mp4"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 "
                 autoPlay
                 muted
@@ -86,15 +86,6 @@ export default function VideoShowcase() {
 
               {/* Dark overlay with grid/vibe */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/80 pointer-events-none" />
-
-
-
-              {/* Video stats floating elements */}
-              <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/80 backdrop-blur-md border border-[#d4af37]/35 rounded-full px-3.5 py-1.5 text-[9px] font-mono text-white tracking-widest uppercase">
-                <Zap className="w-3 h-3 text-[#d4af37] animate-pulse" />
-                <span>AI Live Demo</span>
-              </div>
-
               <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-black/80 backdrop-blur-md border border-emerald-500/35 rounded-full px-3.5 py-1.5 text-[9px] font-mono text-white tracking-widest uppercase">
                 <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Click to Hear Audio</span>
