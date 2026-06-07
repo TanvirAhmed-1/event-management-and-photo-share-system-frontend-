@@ -3,10 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ArrowRight, Sparkle, Camera, UploadCloud, Cpu, ShieldCheck, 
-  Check, Lock, ChevronLeft, ChevronRight, RefreshCw
-} from "lucide-react";
+import {ArrowRight, Sparkle, UploadCloud, Check, Lock, ChevronLeft, ChevronRight} from "lucide-react";
 import Button from "@/components/ui/Button";
 
 interface SlideData {
@@ -452,7 +449,7 @@ export default function Hero({ containerVariants, itemVariants }: { containerVar
       x: 0,
       opacity: 1,
       transition: {
-        x: { type: "spring", stiffness: 300, damping: 30 },
+        x: { type: "spring" as const, stiffness: 300, damping: 30 },
         opacity: { duration: 0.3 }
       }
     },
@@ -460,7 +457,7 @@ export default function Hero({ containerVariants, itemVariants }: { containerVar
       x: dir < 0 ? 100 : -100,
       opacity: 0,
       transition: {
-        x: { type: "spring", stiffness: 300, damping: 30 },
+        x: { type: "spring" as const, stiffness: 300, damping: 30 },
         opacity: { duration: 0.2 }
       }
     })
