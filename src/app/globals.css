@@ -1,26 +1,34 @@
 @import "tailwindcss";
 
 :root {
-  --background: #060608;
-  --foreground: #f4f4f7;
+  /* Eventora Brand Colors */
+  --primary: #172554;
+  --primary-hover: #1e3a8a;
+  --secondary: #7C3AED;
+  --secondary-hover: #6D28D9;
+  --accent: #F5B942;
+  --accent-hover: #eab308;
+  --background: #F8FAFC;
+  --foreground: #0F172A;
   
   --font-outfit: var(--font-outfit), 'Outfit', sans-serif;
   --font-inter: var(--font-inter), 'Inter', sans-serif;
 
-  /* Luxury Theme Colors */
-  --gold-start: #d4af37;
-  --gold-end: #f3e5ab;
-  --rose-gold-start: #b76e79;
-  --rose-gold-end: #ffd1dc;
-  
-  --dark-glass-bg: rgba(13, 13, 17, 0.65);
-  --dark-glass-border: rgba(212, 175, 55, 0.12);
-  --dark-glass-border-hover: rgba(212, 175, 55, 0.3);
-  --gold-glow: 0 0 25px rgba(212, 175, 55, 0.15);
-  --gold-glow-intense: 0 0 35px rgba(212, 175, 55, 0.35);
+  /* Premium Card & Shadow Styles */
+  --card-bg: #FFFFFF;
+  --card-border: #E2E8F0;
+  --card-border-hover: #CBD5E1;
+  --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  --card-shadow-hover: 0 12px 30px -4px rgba(15, 23, 42, 0.1), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
 }
 
 @theme {
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
@@ -43,123 +51,56 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-/* Luxurious Scrollbar Customization */
+/* Elegant Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0b0b0f;
+  background: #F1F5F9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(214, 175, 55, 0.2);
+  background: #CBD5E1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(214, 175, 55, 0.45);
+  background: #94A3B8;
 }
 
-/* Glassmorphism Utilities */
-.glass-panel {
-  background: var(--dark-glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--dark-glass-border);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* Premium Card Styles */
+.premium-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 1rem;
+  box-shadow: var(--card-shadow);
+  transition: all 0.25s ease-in-out;
 }
 
-.glass-panel-hover:hover {
-  border-color: var(--dark-glass-border-hover);
-  box-shadow: var(--gold-glow);
+.premium-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: var(--card-shadow-hover);
   transform: translateY(-2px);
 }
 
-/* Luxury Gold & Rose-Gold Text Gradients */
-.text-gold-gradient {
-  background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa7c11 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Gradient Utilities */
+.bg-violet-gradient {
+  background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
 }
 
-.text-rose-gradient {
-  background: linear-gradient(135deg, #ffd1dc 0%, #b76e79 60%, #914e5a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.bg-navy-gradient {
+  background: linear-gradient(135deg, #172554 0%, #1e1b4b 100%);
 }
 
 .bg-gold-gradient {
-  background: linear-gradient(135deg, #aa7c11 0%, #d4af37 50%, #f3e5ab 100%);
+  background: linear-gradient(135deg, #F5B942 0%, #FBBF24 100%);
 }
 
-.bg-gold-dark-gradient {
-  background: linear-gradient(135deg, #161208 0%, #2e240f 50%, #4a3a19 100%);
-}
-
-.bg-rose-gradient {
-  background: linear-gradient(135deg, #914e5a 0%, #b76e79 50%, #ffd1dc 100%);
-}
-
-/* Neon Glows & Radial Backdrops */
-.glow-gold {
-  box-shadow: var(--gold-glow);
-}
-
-.glow-gold-intense {
-  box-shadow: var(--gold-glow-intense);
-}
-
-.glow-radial-overlay {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0) 70%);
-  filter: blur(50px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.glow-radial-rose {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(183, 110, 121, 0.08) 0%, rgba(183, 110, 121, 0) 70%);
-  filter: blur(50px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Ambient Animation Keyframes */
-@keyframes laser-sweep {
-  0% {
-    top: 0%;
-  }
-  50% {
-    top: 100%;
-  }
-  100% {
-    top: 0%;
-  }
-}
-
-.animate-laser {
-  animation: laser-sweep 3s infinite linear;
-}
-
-@keyframes pulse-slow {
-  0%, 100% {
-    opacity: 0.2;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 4s infinite ease-in-out;
+.text-violet-gradient {
+  background: linear-gradient(135deg, #7C3AED 0%, #4C1D95 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

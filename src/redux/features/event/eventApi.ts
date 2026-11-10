@@ -32,6 +32,45 @@ const eventApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, { id }) => ["event", { type: "event", id }, "user"],
     }),
+    selectServices: builder.mutation({
+      query: ({ id, services }) => ({
+        url: `/events/${id}/services`,
+        method: "PUT",
+        body: { services },
+      }),
+      invalidatesTags: (result, error, { id }) => ["event", { type: "event", id }],
+    }),
+    selectFood: builder.mutation({
+      query: ({ id, items }) => ({
+        url: `/events/${id}/food`,
+        method: "PUT",
+        body: { items },
+      }),
+      invalidatesTags: (result, error, { id }) => ["event", { type: "event", id }],
+    }),
+    previewEventBudget: builder.query({
+      query: (id) => ({
+        url: `/events/${id}/budget-preview`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "event", id }],
+    }),
+    confirmEvent: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/events/${id}/confirm`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => ["event", { type: "event", id }],
+    }),
+    updateGuestCount: builder.mutation({
+      query: ({ id, guestCount }) => ({
+        url: `/events/${id}/guest-count`,
+        method: "PATCH",
+        body: { guestCount },
+      }),
+      invalidatesTags: (result, error, { id }) => ["event", { type: "event", id }],
+    }),
     deleteEvent: builder.mutation({
       query: (id) => ({
         url: `/events/${id}`,
@@ -54,6 +93,11 @@ export const {
   useGetEventByIdQuery,
   useCreateEventMutation,
   useUpdateEventMutation,
+  useSelectServicesMutation,
+  useSelectFoodMutation,
+  usePreviewEventBudgetQuery,
+  useConfirmEventMutation,
+  useUpdateGuestCountMutation,
   useDeleteEventMutation,
   useToggleEventActiveAdminMutation,
 } = eventApi;

@@ -19,42 +19,41 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "ShareEventPhoto AI - Luxury AI Wedding Photo Finder & Face Matcher",
+  title: "Eventora — #1 Event Management Platform & AI Photo Share in Bangladesh",
   description:
-    "An elegant SaaS photo finder for weddings. Guests can upload a selfie to instantly find all professional wedding photos containing their faces via secure AI scanning.",
+    "Plan your perfect event with Eventora. Discover top services, delicious food, expert vendors, curated packages, and instant AI photo sharing for Weddings, Birthdays, and Corporate Events.",
   keywords: [
-    "wedding photo finder",
-    "facial recognition saas",
-    "wedding guest face matcher",
-    "luxury wedding photography saas",
-    "ai wedding photo organizer",
-    "share event photo ai",
-    "tanvir ahmed",
+    "Eventora",
+    "event management Bangladesh",
+    "wedding planner Dhaka",
+    "AI photo finder",
+    "wedding catering Bangladesh",
+    "stage decoration Dhaka",
+    "event photography Bangladesh",
+    "kacchi biryani catering",
   ],
-  authors: [{ name: "Tanvir Ahmed", url: "https://tanvirahmed1.netlify.app/" }],
-  creator: "Tanvir Ahmed",
+  authors: [{ name: "Eventora Team", url: "https://eventora.com.bd" }],
+  creator: "Eventora",
   icons: {
     icon: [
       {
-        url: "/favicon.svg",
+        url: "/icon.svg",
         type: "image/svg+xml",
       },
     ],
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
   },
   openGraph: {
-    title: "ShareEventPhoto AI - Luxury AI Wedding Photo Finder",
-    description: "An elegant SaaS photo finder for weddings. Guests can find professional photos instantly via secure AI facial recognition scanning.",
-    url: "https://shareeventphoto-ai.com",
-    siteName: "ShareEventPhoto AI",
-    locale: "en_US",
+    title: "Eventora — Plan Your Perfect Event",
+    description: "Discover top services, delicious food, and expert vendors with AI photo sharing.",
+    url: "https://eventora.com.bd",
+    siteName: "Eventora",
+    locale: "en_BD",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ShareEventPhoto AI - Luxury AI Wedding Photo Finder",
-    description: "Guests upload a selfie to instantly find all professional wedding photos containing their faces.",
+    title: "Eventora — Event Management & AI Photo Share",
+    description: "Discover top services, delicious food, expert vendors, and instant AI selfie photo sharing.",
   },
 };
 
@@ -66,39 +65,28 @@ export default function RootLayout({
   const schemaJson = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "ShareEventPhoto AI",
-    "url": "https://shareeventphoto-ai.com",
-    "description": "An elegant SaaS photo finder for weddings. Guests can upload a selfie to instantly find all professional wedding photos containing their faces via secure AI scanning.",
-    "applicationCategory": "BusinessApplication",
+    "name": "Eventora",
+    "url": "https://eventora.com.bd",
+    "description": "Bangladesh's premier event management marketplace with AI face-matching photo distribution.",
+    "applicationCategory": "EventManagementApplication",
     "operatingSystem": "All",
-    "creator": {
-      "@type": "Person",
-      "name": "Tanvir Ahmed",
-      "jobTitle": "Full Stack Web Developer",
-      "url": "https://tanvirahmed1.netlify.app/"
-    }
+    "areaServed": "Bangladesh",
   };
 
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable} h-full scroll-smooth antialiased dark`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${outfit.variable} h-full scroll-smooth antialiased`} suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJson) }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#060608] text-[#f4f4f7] selection:bg-[#d4af37]/20 selection:text-[#d4af37] font-sans" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-[#F8FAFC] text-[#0F172A] selection:bg-[#7C3AED]/20 selection:text-[#7C3AED] font-sans antialiased" suppressHydrationWarning>
         <Providers>
           <ThreeDBackground />
           <Navbar />
-          <main className="flex-grow flex flex-col relative">
-            {/* Background glowing overlays */}
-            <div className="absolute top-[10%] left-[5%] w-[600px] h-[600px] bg-radial-gradient(circle, rgba(212,175,55,0.03)_0%, transparent_70%) blur-3xl pointer-events-none z-0"></div>
-            <div className="absolute top-[40%] right-[5%] w-[600px] h-[600px] bg-radial-gradient(circle, rgba(183,110,121,0.03)_0%, transparent_70%) blur-3xl pointer-events-none z-0"></div>
-            
-            <div className="relative z-10 flex flex-col flex-grow w-full">
-              {children}
-            </div>
+          <main className="flex-grow flex flex-col relative z-10">
+            {children}
           </main>
           <Footer />
         </Providers>

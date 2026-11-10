@@ -24,16 +24,31 @@ export function proxy(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   const { pathname } = req.nextUrl;
 
-  // Define public routes
+  // Define public marketplace and informational routes
   const isLoginPage = pathname === "/login";
   const isRegisterPage = pathname === "/register";
   const isLandingPage = pathname === "/";
-  const isGuestScannerPage = pathname.startsWith("/guest/");
+  const isGuestScannerPage = pathname.startsWith("/guest");
+  const isEventsPage = pathname.startsWith("/events");
+  const isServicesPage = pathname.startsWith("/services");
+  const isFoodPage = pathname.startsWith("/food");
+  const isPackagesPage = pathname.startsWith("/packages");
   const aboutPage = pathname.startsWith("/about");
   const contactPage = pathname.startsWith("/contact");
   const guidePage = pathname.startsWith("/guide");
 
-  const isPublicRoute = isLoginPage || isRegisterPage || isLandingPage || isGuestScannerPage || aboutPage || contactPage || guidePage;
+  const isPublicRoute =
+    isLoginPage ||
+    isRegisterPage ||
+    isLandingPage ||
+    isGuestScannerPage ||
+    isEventsPage ||
+    isServicesPage ||
+    isFoodPage ||
+    isPackagesPage ||
+    aboutPage ||
+    contactPage ||
+    guidePage;
 
   // If trying to access private page without being authenticated
   if (!token && !isPublicRoute) {

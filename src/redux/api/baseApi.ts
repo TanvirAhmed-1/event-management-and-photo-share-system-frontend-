@@ -1,12 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
-import { logout, setToken } from "../features/auth/authSlice";
+import { logout } from "../features/auth/authSlice";
 import { removeTokenCookie } from "../server/storeCookies";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const dynamicBaseQuery = async (args: any, api: any, extraOptions: any) => {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
     const rawBaseQuery = fetchBaseQuery({
       baseUrl,
       prepareHeaders: (headers, { getState }) => {
@@ -22,12 +22,8 @@ const dynamicBaseQuery = async (args: any, api: any, extraOptions: any) => {
 
     if (result?.error) {
       if (result.error.status === 401) {
-        // Clear token and logout
         api.dispatch(logout());
         await removeTokenCookie();
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
       }
     }
 
@@ -43,6 +39,6 @@ const dynamicBaseQuery = async (args: any, api: any, extraOptions: any) => {
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: dynamicBaseQuery,
-  tagTypes: ["user", "package", "event", "photo", "ai", "review"],
+  tagTypes: ["user", "package", "event", "photo", "ai", "review", "eventType", "service", "food"],
   endpoints: () => ({}),
 });
