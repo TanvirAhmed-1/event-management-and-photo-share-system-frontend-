@@ -8,6 +8,14 @@ import {
 } from "@/redux/features/user/userApi";
 import { useGetAllPackagesQuery } from "@/redux/features/package/packageApi";
 import { Users, Search, CheckCircle, XCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import toast from "react-hot-toast";
 
 export default function AdminUsers() {
@@ -61,13 +69,13 @@ export default function AdminUsers() {
         </div>
 
         <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Input
             type="text"
             placeholder="Search by name, email, phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-[#7C3AED] w-64"
+            className="pl-9 h-9 text-xs bg-slate-50 w-64"
           />
         </div>
       </div>
@@ -109,18 +117,28 @@ export default function AdminUsers() {
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    <select
-                      value={u.packageId || ""}
-                      onChange={(e) => handlePackageChange(u.id, e.target.value)}
-                      className="text-xs p-1 rounded-lg border border-slate-200 bg-white font-medium focus:outline-none focus:border-[#7C3AED]"
+                    <Select
+                      value={u.packageId || "none"}
+                      onValueChange={(val) =>
+                        handlePackageChange(u.id, val === "none" ? "" : val)
+                      }
                     >
-                      <option value="">No Active Plan</option>
-                      {packages.map((pkg: any) => (
-                        <option key={pkg.id} value={pkg.id}>
-                          {pkg.name} ({pkg.storageLimitMB >= 1000 ? `${(pkg.storageLimitMB / 1000).toFixed(0)} GB` : `${pkg.storageLimitMB} MB`})
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="h-8 text-xs w-44">
+                        <SelectValue placeholder="No Active Plan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No Active Plan</SelectItem>
+                        {packages.map((pkg: any) => (
+                          <SelectItem key={pkg.id} value={pkg.id}>
+                            {pkg.name} (
+                            {pkg.storageLimitMB >= 1000
+                              ? `${(pkg.storageLimitMB / 1000).toFixed(0)} GB`
+                              : `${pkg.storageLimitMB} MB`}
+                            )
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </td>
                   <td className="py-3 px-4 font-mono text-[11px] text-slate-600">
                     {(u.usedStorageMB || 0).toFixed(1)} MB /{" "}

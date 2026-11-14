@@ -1,18 +1,12 @@
-"use client";
+import AdminPackages from "@/components/ui/admin/AdminPackages";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
-export default function AdminPackagesRedirect() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/admin");
-  }, [router]);
-
+/**
+ * Super Admin child route for managing cloud storage tiers and quotas.
+ */
+export default function AdminPackagesPage() {
   return (
-    <div className="min-h-[50vh] flex items-center justify-center text-xs text-slate-400">
-      Redirecting to Eventora Admin Suite...
+    <div className="max-w-[1200px] mx-auto">
+      <AdminPackages />
     </div>
   );
 }

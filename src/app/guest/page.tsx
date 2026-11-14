@@ -6,6 +6,7 @@ import { Camera, Sparkles, ArrowRight, Search, Calendar, MapPin } from "lucide-r
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { Input } from "@/components/ui/input";
 
 export default function GuestPortalPage() {
   const router = useRouter();
@@ -42,12 +43,12 @@ export default function GuestPortalPage() {
 
           {/* Enter Event Code Form */}
           <form onSubmit={handleGoToEvent} className="mt-8 flex items-center max-w-md mx-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg focus-within:border-[#7C3AED] focus-within:ring-2 focus-within:ring-[#7C3AED]/10">
-            <input
+            <Input
               type="text"
               value={eventCode}
               onChange={(e) => setEventCode(e.target.value)}
               placeholder="Enter Event ID or Event Code..."
-              className="w-full bg-transparent px-4 py-2.5 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
+              className="border-0 bg-transparent px-4 py-2 h-10 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus-visible:ring-0 shadow-none"
             />
             <button
               type="submit"
@@ -66,7 +67,22 @@ export default function GuestPortalPage() {
           </h2>
 
           {isLoading ? (
-            <div className="py-12 text-center text-xs text-slate-400">Loading active event galleries...</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+              {[1, 2, 3].map((idx) => (
+                <div
+                  key={idx}
+                  className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-4 motion-preset-fade motion-loop-pulse"
+                  style={{ animationDelay: `${idx * 100}ms` }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="w-16 h-5 rounded-full bg-slate-200 animate-pulse" />
+                    <div className="w-5 h-5 rounded bg-slate-200 animate-pulse" />
+                  </div>
+                  <div className="w-3/4 h-4 rounded bg-slate-200 animate-pulse" />
+                  <div className="w-1/2 h-3 rounded bg-slate-100 animate-pulse" />
+                </div>
+              ))}
+            </div>
           ) : events.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 p-6 text-xs text-slate-500">
               No active events yet. As soon as an organizer creates an event pool, it will appear here.

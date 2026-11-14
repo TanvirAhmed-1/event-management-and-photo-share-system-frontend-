@@ -85,6 +85,21 @@ const eventApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["event"],
     }),
+    getDateAvailability: builder.query({
+      query: () => ({
+        url: "/events/availability",
+        method: "GET",
+      }),
+      providesTags: ["event", "settings"],
+    }),
+    updateEventStatusAdmin: builder.mutation({
+      query: ({ id, status, allowMultipleOverride }) => ({
+        url: `/events/admin/events/${id}/status`,
+        method: "PATCH",
+        body: { status, allowMultipleOverride },
+      }),
+      invalidatesTags: ["event"],
+    }),
   }),
 });
 
@@ -100,4 +115,6 @@ export const {
   useUpdateGuestCountMutation,
   useDeleteEventMutation,
   useToggleEventActiveAdminMutation,
+  useGetDateAvailabilityQuery,
+  useUpdateEventStatusAdminMutation,
 } = eventApi;

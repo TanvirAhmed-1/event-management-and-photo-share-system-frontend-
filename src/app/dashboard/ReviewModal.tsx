@@ -7,6 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Star, Upload, Sparkles, X, Heart, Image as ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import confetti from "canvas-confetti";
 
 interface ReviewModalProps {
@@ -189,16 +192,16 @@ export default function ReviewModal({ isOpen, onClose }: ReviewModalProps) {
               {/* Dynamic Welcome Capsule / Custom Name Input */}
               {isSuperAdmin ? (
                 <div className="space-y-2">
-                  <label className="font-heading text-[10px] uppercase tracking-widest text-[#d4af37] font-bold flex items-center gap-1.5 pl-1">
+                  <Label className="font-heading text-[10px] uppercase tracking-widest text-[#d4af37] font-bold flex items-center gap-1.5 pl-1">
                     Couple / Reviewer Name *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     type="text"
                     placeholder="e.g. Jessica & David"
                     value={customName}
                     onChange={(e) => setCustomName(e.target.value)}
                     required
-                    className="w-full px-5 py-4 bg-[#050507] border border-white/10 hover:border-[#d4af37]/35 rounded-2xl font-medium text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#d4af37]/70 focus:ring-1 focus:ring-[#d4af37]/30 transition-all duration-300"
+                    className="h-12 px-5 bg-[#050507] border-white/10 hover:border-[#d4af37]/35 rounded-2xl font-medium text-xs text-white placeholder:text-gray-600 focus-visible:border-[#d4af37]/70 focus-visible:ring-[#d4af37]/30"
                   />
                 </div>
               ) : (
@@ -250,16 +253,16 @@ export default function ReviewModal({ isOpen, onClose }: ReviewModalProps) {
 
               {/* Comment Text Area */}
               <div className="space-y-2">
-                <label className="font-heading text-[10px] uppercase tracking-widest text-gray-400 font-bold flex items-center gap-1.5 pl-1">
-                  Couple's Thoughts *
-                </label>
-                <textarea
+                <Label className="font-heading text-[10px] uppercase tracking-widest text-gray-400 font-bold flex items-center gap-1.5 pl-1">
+                  Couple&apos;s Thoughts *
+                </Label>
+                <Textarea
                   placeholder="Tell couples how easy it was to find your wedding memories! Did ShareEventPhoto AI save you hours of searching?..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   rows={4}
                   required
-                  className="w-full px-5 py-4 bg-[#050507]/90 border border-white/5 hover:border-[#d4af37]/35 rounded-2xl font-medium text-xs leading-relaxed text-white placeholder-gray-600 focus:outline-none focus:border-[#d4af37]/70 focus:ring-1 focus:ring-[#d4af37]/30 transition-all duration-300 resize-none"
+                  className="px-5 py-4 bg-[#050507]/90 border-white/5 hover:border-[#d4af37]/35 rounded-2xl font-medium text-xs leading-relaxed text-white placeholder:text-gray-600 focus-visible:border-[#d4af37]/70 focus-visible:ring-[#d4af37]/30 resize-none"
                 />
               </div>
 

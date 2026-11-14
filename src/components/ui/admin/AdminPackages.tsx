@@ -7,6 +7,17 @@ import {
   useDeletePackageMutation,
 } from "@/redux/features/package/packageApi";
 import { Plus, Trash2, Database, HardDrive, Check } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
 
 export default function AdminPackages() {
@@ -137,92 +148,103 @@ export default function AdminPackages() {
         </div>
       )}
 
-      {/* Add Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-            <h4 className="text-base font-bold text-[#172554] mb-4">Create Storage Plan</h4>
-            <form onSubmit={handleCreate} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Plan Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Diamond Event 50GB"
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#7C3AED]"
+      {/* Create Storage Plan Right-Side Sheet */}
+      <Sheet open={showModal} onOpenChange={setShowModal}>
+        <SheetContent side="right" className="p-0">
+          <SheetHeader>
+            <SheetTitle>Create Storage Plan</SheetTitle>
+            <SheetDescription>
+              Define a cloud photo quota and billing duration tier for event organizers.
+            </SheetDescription>
+          </SheetHeader>
+
+          <form
+            id="admin-package-form"
+            onSubmit={handleCreate}
+            className="flex-1 overflow-y-auto p-6 space-y-4"
+          >
+            <div className="space-y-1.5">
+              <Label className="text-xs">Plan Name</Label>
+              <Input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Diamond Event 50GB"
+                className="text-xs h-9"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Storage Limit (MB)</Label>
+                <Input
+                  type="number"
+                  value={storageLimitMB}
+                  onChange={(e) => setStorageLimitMB(e.target.value)}
+                  placeholder="5000"
+                  className="text-xs h-9"
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Storage Limit (MB)</label>
-                  <input
-                    type="number"
-                    value={storageLimitMB}
-                    onChange={(e) => setStorageLimitMB(e.target.value)}
-                    placeholder="5000"
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#7C3AED]"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Price (৳)</label>
-                  <input
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="49"
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#7C3AED]"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Validity (Days)</label>
-                <input
+              <div className="space-y-1.5">
+                <Label className="text-xs">Price (৳)</Label>
+                <Input
                   type="number"
-                  value={durationDays}
-                  onChange={(e) => setDurationDays(e.target.value)}
-                  placeholder="30"
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#7C3AED]"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="49"
+                  className="text-xs h-9"
+                  required
                 />
               </div>
+            </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Features (One per line)</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="5 GB High-Speed Storage&#10;Facial Match Scanning&#10;One-Click ZIP Stream"
-                  rows={3}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#7C3AED]"
-                />
-              </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Validity (Days)</Label>
+              <Input
+                type="number"
+                value={durationDays}
+                onChange={(e) => setDurationDays(e.target.value)}
+                placeholder="30"
+                className="text-xs h-9"
+              />
+            </div>
 
-              <div className="flex justify-end gap-2.5 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isCreating}
-                  className="px-4 py-2 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-semibold"
-                >
-                  {isCreating ? "Saving..." : "Create Plan"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Features (One per line)</Label>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={
+                  "5 GB High-Speed Storage\nFacial Match Scanning\nOne-Click ZIP Stream"
+                }
+                rows={4}
+                className="text-xs min-h-[96px]"
+              />
+            </div>
+          </form>
+
+          <SheetFooter>
+            <button
+              type="button"
+              onClick={() => setShowModal(false)}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/70 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="admin-package-form"
+              disabled={isCreating}
+              className="px-4 py-2 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-semibold shadow-sm"
+            >
+              {isCreating ? "Saving..." : "Create Plan"}
+            </button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

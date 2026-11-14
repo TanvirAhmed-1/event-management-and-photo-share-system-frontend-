@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/shared/GlassCard";
 import Container from "@/components/shared/Container";
+import { Input } from "@/components/ui/input";
 import { 
   Sparkles, 
   Search, 
@@ -327,13 +328,13 @@ export default function GuideClient() {
 
           {/* Search Bar */}
           <div className="relative max-w-md mx-auto pt-2">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-            <input 
-              type="text" 
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+            <Input
+              type="text"
               placeholder={curr.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#0d0d11]/80 border border-white/5 rounded-full pl-11 pr-5 py-3 text-xs text-white focus:outline-none focus:border-[#d4af37]/40 focus:ring-1 focus:ring-[#d4af37]/40 placeholder:text-gray-600 transition-all font-medium"
+              className="w-full bg-[#0d0d11]/80 border-white/10 rounded-full pl-11 pr-5 h-11 text-xs text-white focus-visible:ring-[#d4af37]/40 focus-visible:border-[#d4af37]/40 placeholder:text-gray-600 font-medium"
             />
           </div>
         </div>

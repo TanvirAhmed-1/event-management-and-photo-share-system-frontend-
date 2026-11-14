@@ -1,131 +1,180 @@
 "use client";
 
-import React, { useState } from "react";
+import Link from "next/link";
 import { useAppSelector } from "@/redux/hook";
 import { useGetAllEventsQuery } from "@/redux/features/event/eventApi";
 import { useGetAllUsersAdminQuery } from "@/redux/features/user/userApi";
 import { useGetAllPackagesQuery } from "@/redux/features/package/packageApi";
 import { useGetAllServicesQuery } from "@/redux/features/serviceCatalog/serviceCatalogApi";
 import { useGetAllFoodItemsQuery } from "@/redux/features/food/foodApi";
-import { ShieldCheck, Layers, Wrench, Utensils, Database, Users, Calendar } from "lucide-react";
-import Link from "next/link";
+import { useGetAllEventTypesQuery } from "@/redux/features/eventType/eventTypeApi";
+import {
+  ShieldCheck,
+  Layers,
+  Wrench,
+  Utensils,
+  Database,
+  Users,
+  Calendar,
+  ArrowRight,
+} from "lucide-react";
 
 import AdminStats from "@/components/ui/admin/AdminStats";
-import AdminEventTypes from "@/components/ui/admin/AdminEventTypes";
-import AdminServices from "@/components/ui/admin/AdminServices";
-import AdminFoodCatalog from "@/components/ui/admin/AdminFoodCatalog";
-import AdminPackages from "@/components/ui/admin/AdminPackages";
 import AdminUsers from "@/components/ui/admin/AdminUsers";
 import AdminEvents from "@/components/ui/admin/AdminEvents";
 
+/**
+ * Super Admin overview dashboard showing live KPIs, quick module links, and recent events/users.
+ */
 export default function AdminDashboardPage() {
-  const { user, token } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth);
 
   const { data: eventsRes } = useGetAllEventsQuery(undefined);
   const { data: usersRes } = useGetAllUsersAdminQuery(undefined);
   const { data: packagesRes } = useGetAllPackagesQuery(undefined);
   const { data: servicesRes } = useGetAllServicesQuery();
   const { data: foodRes } = useGetAllFoodItemsQuery();
+  const { data: eventTypesRes } = useGetAllEventTypesQuery();
 
-  const [activeTab, setActiveTab] = useState<
-    "event-types" | "services" | "food" | "packages" | "events" | "users"
-  >("event-types");
-
-  const tabs = [
-    { id: "event-types", label: "Event Types", icon: Layers },
-    { id: "services", label: "Services Catalog", icon: Wrench },
-    { id: "food", label: "Food & Catering", icon: Utensils },
-    { id: "packages", label: "Storage Plans", icon: Database },
-    { id: "events", label: "Platform Events", icon: Calendar },
-    { id: "users", label: "Users & Hosts", icon: Users },
+  const modules = [
+    {
+      title: "Event Types",
+      description: "Manage wedding, birthday, corporate & gala categories.",
+      href: "/admin/event-types",
+      count: `${eventTypesRes?.data?.length || 0} categories`,
+      icon: Layers,
+      accent: "bg-purple-50 text-[#7C3AED] border-purple-200/80",
+    },
+    {
+      title: "Services Catalog",
+      description: "Photography, decoration, sound, and venue packages.",
+      href: "/admin/services",
+      count: `${servicesRes?.data?.length || 0} services`,
+      icon: Wrench,
+      accent: "bg-indigo-50 text-indigo-600 border-indigo-200/80",
+    },
+    {
+      title: "Food & Catering",
+      description: "Buffet courses, banquet per-plate menus & veg tags.",
+      href: "/admin/food",
+      count: `${foodRes?.data?.length || 0} menu items`,
+      icon: Utensils,
+      accent: "bg-amber-50 text-amber-600 border-amber-200/80",
+    },
+    {
+      title: "Storage Plans",
+      description: "Cloud storage tiers and AI gallery quotas for hosts.",
+      href: "/admin/packages",
+      count: `${packagesRes?.data?.length || 0} active plans`,
+      icon: Database,
+      accent: "bg-emerald-50 text-emerald-600 border-emerald-200/80",
+    },
+    {
+      title: "Platform Events",
+      description: "Inspect host event galleries and guest portals.",
+      href: "/admin/events",
+      count: `${eventsRes?.data?.length || 0} events`,
+      icon: Calendar,
+      accent: "bg-sky-50 text-sky-600 border-sky-200/80",
+    },
+    {
+      title: "Users & Hosts",
+      description: "Audit registered accounts, statuses & assigned plans.",
+      href: "/admin/users",
+      count: `${usersRes?.data?.length || 0} accounts`,
+      icon: Users,
+      accent: "bg-rose-50 text-rose-600 border-rose-200/80",
+    },
   ];
 
-  if (!token || user?.role !== "SUPER_ADMIN") {
-    return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mb-4">
-          <ShieldCheck className="w-8 h-8" />
-        </div>
-        <h2 className="text-xl font-bold text-[#172554]">Super Admin Access Required</h2>
-        <p className="text-xs text-slate-500 max-w-sm mt-1.5 mb-6">
-          Please log in with Super Admin credentials to access the Eventora management console.
-        </p>
-        <Link
-          href="/login"
-          className="px-5 py-2.5 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition shadow-md shadow-[#7C3AED]/20"
-        >
-          Sign In as Admin
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full py-8 lg:py-12 bg-[#F8FAFC]">
-      <div className="mx-auto max-w-[1340px] px-4 sm:px-6 lg:px-8 space-y-8">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200/80">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-[#7C3AED] text-[11px] font-bold border border-purple-200 mb-2">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Super Admin Management Suite</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#172554] tracking-tight">
-              Eventora Administration
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Govern categories, services, catering menus, photo quotas, and platform bookings.
-            </p>
+    <div className="max-w-[1200px] mx-auto space-y-8 motion-preset-slide-up-sm motion-preset-fade motion-duration-500">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200/80">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-[#7C3AED] text-[11px] font-bold border border-purple-200 mb-2">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Super Admin Management Suite</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-slate-500">Logged in as:</span>
-            <span className="px-3 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-[#172554] shadow-xs">
-              {user.name} ({user.role})
-            </span>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#172554] tracking-tight">
+            Eventora Administration
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Govern categories, services, catering menus, photo quotas, and platform bookings.
+          </p>
         </div>
 
-        {/* 1. Statistics Overview Bar */}
-        <AdminStats
-          userCount={usersRes?.data?.length || 0}
-          eventCount={eventsRes?.data?.length || 0}
-          serviceCount={servicesRes?.data?.length || 0}
-          foodCount={foodRes?.data?.length || 0}
-          packageCount={packagesRes?.data?.length || 0}
-        />
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold text-slate-500">
+            Logged in as:
+          </span>
+          <span className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-[#172554] shadow-xs">
+            {user?.name || "Admin"} ({user?.role || "SUPER_ADMIN"})
+          </span>
+        </div>
+      </div>
 
-        {/* 2. Module Navigation Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200 no-scrollbar">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
+      {/* Statistics Overview Bar */}
+      <AdminStats
+        userCount={usersRes?.data?.length || 0}
+        eventCount={eventsRes?.data?.length || 0}
+        serviceCount={servicesRes?.data?.length || 0}
+        foodCount={foodRes?.data?.length || 0}
+        packageCount={packagesRes?.data?.length || 0}
+      />
+
+      {/* Quick Module Cards */}
+      <div>
+        <div className="mb-4">
+          <h2 className="text-lg font-extrabold text-[#172554]">
+            Management Modules
+          </h2>
+          <p className="text-xs text-slate-500">
+            Jump directly to any catalog, quota, or moderation section from the left sidebar or cards below.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {modules.map((mod) => {
+            const Icon = mod.icon;
             return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                  isActive
-                    ? "bg-[#172554] text-white shadow-md shadow-[#172554]/20"
-                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80"
-                }`}
+              <Link
+                key={mod.href}
+                href={mod.href}
+                className="group p-5 rounded-2xl bg-white border border-slate-200/80 hover:border-[#7C3AED]/50 shadow-xs hover:shadow-md transition flex flex-col justify-between gap-4"
               >
-                <Icon className={`w-4 h-4 ${isActive ? "text-[#F5B942]" : "text-slate-400"}`} />
-                <span>{tab.label}</span>
-              </button>
+                <div className="flex items-start justify-between gap-3">
+                  <div
+                    className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 ${mod.accent}`}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-600">
+                    {mod.count}
+                  </span>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-sm font-extrabold text-[#172554] group-hover:text-[#7C3AED] transition">
+                      {mod.title}
+                    </h3>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#7C3AED] group-hover:translate-x-0.5 transition" />
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    {mod.description}
+                  </p>
+                </div>
+              </Link>
             );
           })}
         </div>
+      </div>
 
-        {/* 3. Tab Contents */}
-        <div>
-          {activeTab === "event-types" && <AdminEventTypes />}
-          {activeTab === "services" && <AdminServices />}
-          {activeTab === "food" && <AdminFoodCatalog />}
-          {activeTab === "packages" && <AdminPackages />}
-          {activeTab === "events" && <AdminEvents />}
-          {activeTab === "users" && <AdminUsers />}
-        </div>
+      {/* Live Operations Overview */}
+      <div className="space-y-8">
+        <AdminEvents />
+        <AdminUsers />
       </div>
     </div>
   );

@@ -17,6 +17,13 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import FileUpload from "@/components/FileUpload";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -144,16 +151,15 @@ export default function EventDetail() {
   const totalEventSize = photos.reduce((acc: number, p: any) => acc + (p.sizeMB || 0), 0);
 
   return (
-    <div className="w-full py-8 lg:py-12 bg-[#F8FAFC]">
-      <div className="mx-auto max-w-[1340px] px-4 sm:px-6 lg:px-8 space-y-8">
-        {/* Breadcrumb Navigation */}
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#7C3AED] transition group"
-        >
-          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          <span>Back to Host Hub</span>
-        </Link>
+    <div className="max-w-[1200px] mx-auto space-y-8">
+      {/* Breadcrumb Navigation */}
+      <Link
+        href="/dashboard/events"
+        className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#7C3AED] transition group"
+      >
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+        <span>Back to My Events</span>
+      </Link>
 
         {/* Event Header Banner */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-xs">
@@ -206,16 +212,20 @@ export default function EventDetail() {
           </div>
         </div>
 
-        {/* Upload Panel */}
-        {uploadOpen && (
-          <div className="bg-white rounded-2xl border border-purple-200 p-6 shadow-md">
-            <h3 className="text-sm font-bold text-[#172554] mb-1">Upload Event Photos</h3>
-            <p className="text-xs text-slate-500 mb-4">
-              Select or drop multiple photos. Detected faces will be embedded automatically for guest searching.
-            </p>
-            <FileUpload onUpload={handleUploadPhotos} isLoading={uploadLoading} />
-          </div>
-        )}
+        {/* Upload Photos Slide-Over Sheet */}
+        <Sheet open={uploadOpen} onOpenChange={setUploadOpen}>
+          <SheetContent side="right" className="p-0 max-w-xl">
+            <SheetHeader>
+              <SheetTitle>Upload Event Photos</SheetTitle>
+              <SheetDescription>
+                Select or drop multiple high-resolution photos. Faces are automatically indexed for instant guest selfie matching.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto p-6">
+              <FileUpload onUpload={handleUploadPhotos} isLoading={uploadLoading} />
+            </div>
+          </SheetContent>
+        </Sheet>
 
         {/* Photo Gallery Grid */}
         <div>
@@ -282,6 +292,5 @@ export default function EventDetail() {
           )}
         </div>
       </div>
-    </div>
   );
 }

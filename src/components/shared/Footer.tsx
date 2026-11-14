@@ -1,13 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ArrowUp } from "lucide-react";
 import toast from "react-hot-toast";
 import EventoraLogo from "./EventoraLogo";
 
 export default function Footer() {
+  const pathname = usePathname();
   const [email, setEmail] = useState("");
+
+  if (
+    pathname?.startsWith("/dashboard") ||
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/profile")
+  ) {
+    return null;
+  }
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +34,8 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative bg-white border-t border-slate-200/80 pt-16 pb-12 overflow-hidden text-slate-600">
+    <footer className="relative bg-white border-t border-slate-200/80 pt-16 pb-10 overflow-hidden text-slate-600">
+      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#172554] via-[#7C3AED] to-[#F5B942] opacity-80" />
       <div className="mx-auto max-w-[1340px] px-4 sm:px-6 lg:px-8">
         {/* Main 5-Column Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-12 border-b border-slate-100">
@@ -32,7 +43,7 @@ export default function Footer() {
           <div className="lg:col-span-3 space-y-4">
             <EventoraLogo size="md" />
             <p className="text-xs text-slate-500 leading-relaxed max-w-sm mt-3">
-              Bangladesh's leading all-in-one event marketplace and AI-powered photo delivery platform. Plan, book, and cherish every moment effortlessly.
+              Bangladesh&apos;s leading all-in-one event marketplace and AI-powered photo delivery platform. Plan, book, and cherish every moment effortlessly.
             </p>
           </div>
 

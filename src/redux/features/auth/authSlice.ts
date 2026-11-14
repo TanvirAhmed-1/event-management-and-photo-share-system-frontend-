@@ -8,6 +8,9 @@ type TUser = {
   role: string;
   packageId: string | null;
   usedStorageMB: number;
+  bio?: string;
+  organization?: string;
+  avatarColor?: string;
 } | null;
 
 type TAuthState = {
@@ -41,9 +44,23 @@ const authSlice = createSlice({
       if (state.user) {
         state.user.packageId = action.payload.packageId;
       }
-    }
+    },
+    updateUserProfile: (
+      state,
+      action: PayloadAction<{
+        name?: string;
+        phone?: string;
+        bio?: string;
+        organization?: string;
+        avatarColor?: string;
+      }>
+    ) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    },
   },
 });
 
-export const { login, logout, setToken, updateUserPackage } = authSlice.actions;
+export const { login, logout, setToken, updateUserPackage, updateUserProfile } = authSlice.actions;
 export default authSlice.reducer;

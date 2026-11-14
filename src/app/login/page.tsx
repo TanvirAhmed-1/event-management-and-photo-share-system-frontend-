@@ -7,6 +7,8 @@ import { useState } from "react";
 import { Mail, Lock, ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import EventoraLogo from "@/components/shared/EventoraLogo";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Login() {
   const router = useRouter();
@@ -53,7 +55,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 bg-[#F8FAFC]">
+    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 bg-eventora-mesh">
       <div className="w-full max-w-md space-y-6">
         <Link
           href="/"
@@ -63,7 +65,7 @@ export default function Login() {
           <span>Back to Home</span>
         </Link>
 
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-xl shadow-slate-200/50">
+        <div className="bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/80 p-8 shadow-2xl shadow-slate-900/8 motion-preset-slide-up-md motion-preset-fade motion-duration-500">
           <div className="text-center mb-6">
             <div className="flex justify-center mb-4">
               <EventoraLogo size="md" />
@@ -72,43 +74,43 @@ export default function Login() {
               Sign In to Your Account
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Access your events, services, and photo galleries
+              Access your events, services, and AI photo galleries
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-700">Email Address</Label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="name@example.com"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:outline-none focus:border-[#7C3AED] focus:bg-white transition"
+                  className="pl-10 h-10 text-xs bg-slate-50/50"
                   required
                 />
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">Password</label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold text-slate-700">Password</Label>
                 <Link href="#" className="text-[11px] text-[#7C3AED] hover:underline">
                   Forgot password?
                 </Link>
               </div>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:outline-none focus:border-[#7C3AED] focus:bg-white transition"
+                  className="pl-10 h-10 text-xs bg-slate-50/50"
                   required
                 />
               </div>

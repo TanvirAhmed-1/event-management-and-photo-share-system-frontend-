@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "tailwindcss-motion";
 
 :root {
   /* Eventora Brand Colors */
@@ -103,4 +104,62 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.text-brand-gradient {
+  background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 50%, #D97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Luxury Mesh & Glass Utilities */
+.bg-eventora-mesh {
+  background-color: #F8FAFC;
+  background-image:
+    radial-gradient(at 10% 10%, rgba(124, 58, 237, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 15%, rgba(245, 185, 66, 0.1) 0px, transparent 45%),
+    radial-gradient(at 50% 90%, rgba(99, 102, 241, 0.06) 0px, transparent 50%);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+@keyframes scan-sweep {
+  0% {
+    top: 8%;
+    opacity: 0.25;
+  }
+  50% {
+    top: 88%;
+    opacity: 1;
+  }
+  100% {
+    top: 8%;
+    opacity: 0.25;
+  }
+}
+
+.animate-scan-sweep {
+  animation: scan-sweep 3s ease-in-out infinite;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

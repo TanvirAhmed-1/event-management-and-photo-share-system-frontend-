@@ -22,6 +22,8 @@ export interface FoodItem {
   minGuests?: number;
   isActive: boolean;
   coverImage?: string;
+  images?: string[];
+  dietaryLabels?: string[];
 }
 
 const foodApi = baseApi.injectEndpoints({

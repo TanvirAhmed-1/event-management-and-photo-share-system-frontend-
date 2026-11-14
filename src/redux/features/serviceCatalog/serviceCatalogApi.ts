@@ -23,6 +23,8 @@ export interface ServiceItem {
   maxGuests?: number;
   isActive: boolean;
   coverImage?: string;
+  images?: string[];
+  aiPhotoShareMode?: string;
 }
 
 const serviceCatalogApi = baseApi.injectEndpoints({
