@@ -5,6 +5,7 @@ export interface PlatformSettings {
   maxEventsPerDay: number;
   allowSameDateRequests: boolean;
   warnAdminOnSameDate: boolean;
+  serviceCities: string[];
   updatedAt: string;
 }
 
@@ -19,7 +20,12 @@ const settingsApi = baseApi.injectEndpoints({
     }),
     updatePlatformSettings: builder.mutation<
       { success: boolean; data: PlatformSettings },
-      Partial<Pick<PlatformSettings, "maxEventsPerDay" | "allowSameDateRequests" | "warnAdminOnSameDate">>
+      Partial<
+        Pick<
+          PlatformSettings,
+          "maxEventsPerDay" | "allowSameDateRequests" | "warnAdminOnSameDate" | "serviceCities"
+        >
+      >
     >({
       query: (body) => ({
         url: "/settings",

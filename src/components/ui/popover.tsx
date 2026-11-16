@@ -1,16 +1,21 @@
 "use client";
 
-import React, { useState, useRef, useEffect, createContext, useContext } from "react";
+import React, { useState, useRef, useEffect, createContext, useContext, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/utils/cn";
 
 interface PopoverContextType {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  triggerRef: React.RefObject<HTMLDivElement | null>;
+  contentRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const PopoverContext = createContext<PopoverContextType>({
   open: false,
   setOpen: () => {},
+  triggerRef: { current: null },
+  contentRef: { current: null },
 });
 
 export function Popover({
@@ -25,17 +30,26 @@ export function Popover({
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen;
 
-  const setOpen: React.Dispatch<React.SetStateAction<boolean>> = (value) => {
-    const next = typeof value === "function" ? value(open) : value;
-    if (onOpenChange) onOpenChange(next);
-    else setUncontrolledOpen(next);
-  };
+  const setOpen: React.Dispatch<React.SetStateAction<boolean>> = useCallback(
+    (value) => {
+      const next = typeof value === "function" ? value(open) : value;
+      if (onOpenChange) onOpenChange(next);
+      else setUncontrolledOpen(next);
+    },
+    [open, onOpenChange]
+  );
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        triggerRef.current &&
+        !triggerRef.current.contains(target) &&
+        (!contentRef.current || !contentRef.current.contains(target))
+      ) {
         setOpen(false);
       }
     };
@@ -43,11 +57,11 @@ export function Popover({
       document.addEventListener("mousedown", handleOutsideClick);
     }
     return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [open]);
+  }, [open, setOpen]);
 
   return (
-    <PopoverContext.Provider value={{ open, setOpen }}>
-      <div ref={containerRef} className="relative inline-block w-full">
+    <PopoverContext.Provider value={{ open, setOpen, triggerRef, contentRef }}>
+      <div ref={triggerRef} className="relative inline-block w-full">
         {children}
       </div>
     </PopoverContext.Provider>
@@ -56,7 +70,7 @@ export function Popover({
 
 export function PopoverTrigger({
   children,
-  asChild,
+  asChild: _asChild,
   className,
 }: {
   children: React.ReactNode;
@@ -85,23 +99,64 @@ export function PopoverContent({
   className?: string;
   align?: "start" | "center" | "end";
 }) {
-  const { open } = useContext(PopoverContext);
+  const { open, triggerRef, contentRef } = useContext(PopoverContext);
+  const [coords, setCoords] = useState<{ top: number; left: number; openUp: boolean } | null>(null);
 
-  if (!open) return null;
+  const updatePosition = useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUp = spaceBelow < 340 && rect.top > 340;
 
-  return (
+    let left = rect.left;
+    if (align === "center") left = rect.left + rect.width / 2;
+    if (align === "end") left = rect.right;
+
+    setCoords({
+      top: openUp ? rect.top - 8 : rect.bottom + 8,
+      left: Math.max(12, Math.min(left, window.innerWidth - 320)),
+      openUp,
+    });
+  }, [align, triggerRef]);
+
+  useEffect(() => {
+    if (!open) {
+      setCoords(null);
+      return;
+    }
+    updatePosition();
+    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener("resize", updatePosition);
+    return () => {
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [open, updatePosition]);
+
+  if (!open || typeof document === "undefined" || !coords) return null;
+
+  return createPortal(
     <div
-      className={cn(
-        "absolute z-50 mt-2 rounded-2xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/15 motion-preset-fade motion-preset-slide-up-sm motion-duration-200",
-        align === "end"
-          ? "right-0"
+      ref={contentRef}
+      style={{
+        position: "fixed",
+        top: coords.top,
+        left: coords.left,
+        transform: coords.openUp
+          ? align === "center"
+            ? "translate(-50%, -100%)"
+            : "translateY(-100%)"
           : align === "center"
-          ? "left-1/2 -translate-x-1/2"
-          : "left-0",
+          ? "translateX(-50%)"
+          : undefined,
+      }}
+      className={cn(
+        "z-[9999] rounded-2xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/20 motion-preset-fade motion-duration-150",
         className
       )}
     >
       {children}
-    </div>
+    </div>,
+    document.body
   );
 }

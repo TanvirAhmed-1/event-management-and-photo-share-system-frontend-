@@ -12,6 +12,9 @@ import {
   ShieldCheck,
   Save,
   Sparkles,
+  MapPin,
+  Plus,
+  X,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -24,14 +27,34 @@ export default function AdminSettingsPage() {
   const [maxEventsPerDay, setMaxEventsPerDay] = useState<number>(1);
   const [allowSameDateRequests, setAllowSameDateRequests] = useState<boolean>(true);
   const [warnAdminOnSameDate, setWarnAdminOnSameDate] = useState<boolean>(true);
+  const [serviceCities, setServiceCities] = useState<string[]>([]);
+  const [newCity, setNewCity] = useState<string>("");
 
   useEffect(() => {
     if (settingsRes?.data) {
       setMaxEventsPerDay(settingsRes.data.maxEventsPerDay);
       setAllowSameDateRequests(settingsRes.data.allowSameDateRequests);
       setWarnAdminOnSameDate(settingsRes.data.warnAdminOnSameDate);
+      if (Array.isArray(settingsRes.data.serviceCities)) {
+        setServiceCities(settingsRes.data.serviceCities);
+      }
     }
   }, [settingsRes]);
+
+  const handleAddCity = () => {
+    const trimmed = newCity.trim();
+    if (!trimmed) return;
+    if (serviceCities.some((c) => c.toLowerCase() === trimmed.toLowerCase())) {
+      toast.error(`"${trimmed}" is already in the city list.`);
+      return;
+    }
+    setServiceCities([...serviceCities, trimmed]);
+    setNewCity("");
+  };
+
+  const handleRemoveCity = (cityToRemove: string) => {
+    setServiceCities(serviceCities.filter((c) => c !== cityToRemove));
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,8 +63,9 @@ export default function AdminSettingsPage() {
         maxEventsPerDay: Number(maxEventsPerDay),
         allowSameDateRequests,
         warnAdminOnSameDate,
+        serviceCities,
       }).unwrap();
-      toast.success("Organizer capacity & date settings saved!");
+      toast.success("Platform cities, capacity & date settings saved!");
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to save settings");
     }
@@ -53,13 +77,13 @@ export default function AdminSettingsPage() {
       <div className="pb-5 border-b border-slate-200/80">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-[#7C3AED] text-[11px] font-bold border border-purple-200 mb-2">
           <Settings className="w-3.5 h-3.5" />
-          <span>System &amp; Capacity Mode</span>
+          <span>System, Cities &amp; Capacity Mode</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#172554] tracking-tight">
-          Event Date &amp; Organizer Capacity Settings
+          Service Cities &amp; Organizer Capacity Settings
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Configure how many events can be accepted per day, whether users can request busy dates, and same-date admin conflict alerts.
+          Manage dynamic service cities shown in the homepage search bar, daily event limits, and same-date conflict alerts.
         </p>
       </div>
 
@@ -71,6 +95,71 @@ export default function AdminSettingsPage() {
         </div>
       ) : (
         <form onSubmit={handleSave} className="space-y-6">
+          {/* Card 0: Dynamic Service Cities Management */}
+          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-5">
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-2xl bg-purple-50 border border-purple-200 text-[#7C3AED] flex items-center justify-center shrink-0">
+                <MapPin className="w-5 h-5" />
+              </div>
+              <div className="flex-1 space-y-4">
+                <div>
+                  <h2 className="text-base font-extrabold text-[#172554]">
+                    Dynamic Service Cities (Homepage &amp; Events Filter)
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    Add or remove cities dynamically. These cities appear live in the Hero search dropdown and Events Explorer filter.
+                  </p>
+                </div>
+
+                {/* Active Cities Pills */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {serviceCities.map((city) => (
+                    <span
+                      key={city}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-[#172554] text-xs font-bold"
+                    >
+                      <MapPin className="w-3 h-3 text-[#7C3AED]" />
+                      <span>{city}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCity(city)}
+                        className="ml-0.5 text-slate-400 hover:text-rose-600 transition"
+                        title={`Remove ${city}`}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+
+                {/* Add New City Input */}
+                <div className="flex items-center gap-2.5 max-w-md">
+                  <Input
+                    type="text"
+                    value={newCity}
+                    onChange={(e) => setNewCity(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddCity();
+                      }
+                    }}
+                    placeholder="Add new city (e.g. Gazipur, Comilla, Barisal)..."
+                    className="h-10 text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCity}
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-[#7C3AED] text-white text-xs font-bold shrink-0 transition"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add City</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Card 1: Daily Event Limit */}
           <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-5">
             <div className="flex items-start gap-4">
@@ -169,10 +258,8 @@ export default function AdminSettingsPage() {
             <div className="flex items-center gap-3 text-xs">
               <ShieldCheck className="w-5 h-5 text-[#F5B942] shrink-0" />
               <span>
-                Active Policy: <strong>{maxEventsPerDay} event(s)/day</strong> •{" "}
-                {allowSameDateRequests
-                  ? "Same-date requests queued for Admin review"
-                  : "Same-date requests strictly blocked"}
+                Active: <strong>{serviceCities.length} Cities</strong> •{" "}
+                <strong>{maxEventsPerDay} event(s)/day</strong>
               </span>
             </div>
 
@@ -186,7 +273,7 @@ export default function AdminSettingsPage() {
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>Save Capacity Settings</span>
+                  <span>Save All Settings</span>
                 </>
               )}
             </button>

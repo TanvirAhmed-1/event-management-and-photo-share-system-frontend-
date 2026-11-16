@@ -4,6 +4,7 @@ import HeroSection from "@/components/ui/home/HeroSection";
 import BrowseCategories from "@/components/ui/home/BrowseCategories";
 import PremiumServices from "@/components/ui/home/PremiumServices";
 import FeaturedPackages from "@/components/ui/home/FeaturedPackages";
+import CuratedPackages from "@/components/ui/home/CuratedPackages";
 import AiPhotoAndWorkflow from "@/components/ui/home/AiPhotoAndWorkflow";
 import SeoComparisonMatrix from "@/components/ui/home/SeoComparisonMatrix";
 import SeoLocationsAndVenues from "@/components/ui/home/SeoLocationsAndVenues";
@@ -26,7 +27,10 @@ export default function Home() {
       {/* 4. Featured Event Packages & Delicious Food Catering */}
       <FeaturedPackages />
 
-      {/* 5. Find Your Photos with AI & How It Works (4 simple steps) */}
+      {/* 5. Curated Celebration Packages (from /packages) */}
+      <CuratedPackages />
+
+      {/* 6. Find Your Photos with AI & How It Works */}
       <AiPhotoAndWorkflow />
 
       {/* 6. SEO Comparison Matrix: Traditional Coordination vs. Eventora AI Platform */}

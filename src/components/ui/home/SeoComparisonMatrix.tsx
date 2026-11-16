@@ -13,6 +13,7 @@ import {
   Clock,
   HardDrive,
 } from "lucide-react";
+import Container from "@/components/shared/Container";
 
 interface ComparisonRow {
   feature: string;
@@ -56,14 +57,11 @@ const COMPARISONS: ComparisonRow[] = [
 
 export default function SeoComparisonMatrix() {
   return (
-    <section className="w-full py-16 lg:py-24 bg-[#F8FAFC] border-t border-slate-200/80 relative">
-      <div className="mx-auto max-w-[1340px] px-4 sm:px-6 lg:px-8 space-y-12">
+    <section className="w-full py-10 bg-[#F8FAFC] border-t border-slate-200/80 relative">
+      <Container className="space-y-12">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-[#7C3AED] text-[11px] font-bold border border-purple-200">
-            <Zap className="w-3.5 h-3.5 text-[#F5B942]" />
-            <span>The Modern Event Standard</span>
-          </div>
+
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#172554] tracking-tight">
             Traditional Planning vs.{" "}
             <span className="text-[#7C3AED]">Eventora AI Platform</span>
@@ -197,7 +195,7 @@ export default function SeoComparisonMatrix() {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

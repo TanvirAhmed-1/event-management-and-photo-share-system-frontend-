@@ -24,6 +24,15 @@ export function proxy(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   const { pathname } = req.nextUrl;
 
+  // Always allow static public assets & files with extensions
+  if (
+    pathname.startsWith("/images") ||
+    pathname.startsWith("/_next") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
+  }
+
   // Define public marketplace and informational routes
   const isLoginPage = pathname === "/login";
   const isRegisterPage = pathname === "/register";
@@ -33,6 +42,10 @@ export function proxy(req: NextRequest) {
   const isServicesPage = pathname.startsWith("/services");
   const isFoodPage = pathname.startsWith("/food");
   const isPackagesPage = pathname.startsWith("/packages");
+  const isBlogPage = pathname.startsWith("/blog");
+  const isPrivacyPage = pathname.startsWith("/privacy");
+  const isTermsPage = pathname.startsWith("/terms");
+  const isCookiesPage = pathname.startsWith("/cookies");
   const aboutPage = pathname.startsWith("/about");
   const contactPage = pathname.startsWith("/contact");
   const guidePage = pathname.startsWith("/guide");
@@ -46,6 +59,10 @@ export function proxy(req: NextRequest) {
     isServicesPage ||
     isFoodPage ||
     isPackagesPage ||
+    isBlogPage ||
+    isPrivacyPage ||
+    isTermsPage ||
+    isCookiesPage ||
     aboutPage ||
     contactPage ||
     guidePage;
@@ -76,7 +93,9 @@ export function proxy(req: NextRequest) {
 
 // Config matcher to intercept all pages except assets, static files, and standard next components
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|images|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp4|webm)$).*)",
+  ],
 };
 
 export default proxy;

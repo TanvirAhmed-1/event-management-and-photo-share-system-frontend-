@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useGetAllEventsQuery } from "@/redux/features/event/eventApi";
 import { useGetAllFoodItemsQuery } from "@/redux/features/food/foodApi";
+import Container from "@/components/shared/Container";
 
 export default function FeaturedPackages() {
   const { data: eventsRes, isLoading: isEventsLoading } = useGetAllEventsQuery(undefined);
@@ -23,45 +24,14 @@ export default function FeaturedPackages() {
   const events = eventsRes?.data || [];
   const foodItems = foodRes?.data || [];
 
-  // Fallback curated features if not dynamic
-  const getEventFeatures = (index: number) => {
-    switch (index) {
-      case 0:
-        return [
-          "Royal floral stage & VIP entrance walkway",
-          "Dedicated Pro Photographer + AI Photo Delivery",
-          "Banquet seating & coordinator hospitality",
-          "Shahi buffet catering with live counters",
-        ];
-      case 1:
-        return [
-          "Custom balloon arch & character backdrop",
-          "Multi-tier designer celebration cake",
-          "Event portrait photography & guest gallery",
-          "Acoustic DJ audio & party lighting rig",
-        ];
-      default:
-        return [
-          "Conference hall & digital AV presentation stage",
-          "Executive luncheon & gourmet tea breaks",
-          "Full event media coverage & press reel",
-          "On-site hospitality & guest registration",
-        ];
-    }
-  };
-
   const isLoading = isEventsLoading || isFoodLoading;
 
   return (
-    <section className="w-full py-14 lg:py-20 bg-white border-y border-slate-100">
-      <div className="mx-auto max-w-[1340px] px-4 sm:px-6 lg:px-8">
+    <section className="w-full py-10 bg-white border-y border-slate-100">
+      <Container>
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 motion-preset-slide-up-sm motion-preset-fade motion-duration-500">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-[#7C3AED] text-[11px] font-bold border border-purple-100 mb-2">
-              <Sparkles className="w-3 h-3" />
-              <span>Tailored All-Inclusive Celebrations</span>
-            </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#172554] tracking-tight">
               Featured Events &amp; Catering
             </h2>
@@ -126,21 +96,31 @@ export default function FeaturedPackages() {
               {/* Top 3 Live Showcase Events */}
               {events.slice(0, 3).map((event: any, idx: number) => {
                 const isPopular = idx === 0;
-                const cover =
-                  event.coverImage ||
-                  "https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=600&auto=format&fit=crop";
-                const guestCount = event.guestCount || (idx === 0 ? 350 : idx === 1 ? 80 : 200);
-                const features = getEventFeatures(idx);
-                const eventTypeName = event.eventType?.name || (idx === 0 ? "Wedding" : idx === 1 ? "Birthday" : "Corporate");
+                const cover = event.coverImage || "/images/categories/wedding.jpg";
+                const guestCount = event.guestCount;
+                const eventTypeName = event.eventType?.name;
+                const dynamicHighlights = [
+                  event.venue ? `Venue: ${event.venue}` : null,
+                  guestCount ? `Capacity: ${guestCount} Guests` : null,
+                  event.eventDate
+                    ? `Date: ${new Date(event.eventDate).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}`
+                    : null,
+                  event._count?.photos !== undefined
+                    ? `${event._count.photos} Gallery Photos`
+                    : null,
+                ].filter(Boolean) as string[];
 
                 return (
                   <div
                     key={event.id || idx}
-                    className={`group flex flex-col bg-white rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1.5 motion-preset-slide-up-sm motion-preset-fade ${
-                      isPopular
-                        ? "ring-2 ring-[#7C3AED] shadow-xl shadow-[#7C3AED]/10 border border-purple-200"
-                        : "border border-slate-200/80 shadow-xs hover:shadow-xl"
-                    }`}
+                    className={`group flex flex-col bg-white rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1.5 motion-preset-slide-up-sm motion-preset-fade ${isPopular
+                      ? "ring-2 ring-[#7C3AED] shadow-xl shadow-[#7C3AED]/10 border border-purple-200"
+                      : "border border-slate-200/80 shadow-xs hover:shadow-xl"
+                      }`}
                     style={{ animationDelay: `${idx * 100}ms` }}
                   >
                     {/* Image & Badges */}
@@ -161,10 +141,12 @@ export default function FeaturedPackages() {
                         </div>
                       )}
 
-                      <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-[#172554] text-[10px] font-bold shadow-xs">
-                        <Users className="w-3 h-3 text-[#7C3AED]" />
-                        <span>{guestCount} Guests</span>
-                      </div>
+                      {guestCount ? (
+                        <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-[#172554] text-[10px] font-bold shadow-xs">
+                          <Users className="w-3 h-3 text-[#7C3AED]" />
+                          <span>{guestCount} Guests</span>
+                        </div>
+                      ) : null}
 
                       {event.venue && (
                         <div className="absolute bottom-3 right-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[9px] font-medium max-w-[140px] truncate">
@@ -178,32 +160,40 @@ export default function FeaturedPackages() {
                     <div className="p-5 flex flex-col justify-between flex-grow">
                       <div>
                         <div className="flex items-center justify-between gap-1 mb-1">
-                          <span className="text-[10px] font-bold tracking-wider uppercase text-[#7C3AED]">
-                            {eventTypeName}
-                          </span>
-                          <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                            {event.status || "CONFIRMED"}
-                          </span>
+                          {eventTypeName ? (
+                            <span className="text-[10px] font-bold tracking-wider uppercase text-[#7C3AED]">
+                              {eventTypeName}
+                            </span>
+                          ) : <span />}
+                          {event.status ? (
+                            <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                              {event.status}
+                            </span>
+                          ) : null}
                         </div>
 
                         <h3 className="text-base font-extrabold text-[#172554] group-hover:text-[#7C3AED] transition-colors line-clamp-1">
                           {event.title}
                         </h3>
-                        <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-snug">
-                          {event.description || "Grand celebration arranged with verified decorators & AI photo share."}
-                        </p>
+                        {event.description ? (
+                          <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-snug">
+                            {event.description}
+                          </p>
+                        ) : null}
 
-                        {/* Itemized Feature Checkmarks */}
-                        <ul className="mt-4 space-y-2 text-xs text-slate-600">
-                          {features.map((feat, fIdx) => (
-                            <li key={fIdx} className="flex items-start gap-2">
-                              <span className="w-4 h-4 rounded-full bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0 mt-0.5">
-                                <Check className="w-2.5 h-2.5 stroke-[3]" />
-                              </span>
-                              <span className="leading-snug text-[11px]">{feat}</span>
-                            </li>
-                          ))}
-                        </ul>
+                        {/* Dynamic Event Metadata Highlights */}
+                        {dynamicHighlights.length > 0 && (
+                          <ul className="mt-4 space-y-2 text-xs text-slate-600">
+                            {dynamicHighlights.map((feat, fIdx) => (
+                              <li key={fIdx} className="flex items-start gap-2">
+                                <span className="w-4 h-4 rounded-full bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0 mt-0.5">
+                                  <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                </span>
+                                <span className="leading-snug text-[11px]">{feat}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
 
                       <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
@@ -314,7 +304,7 @@ export default function FeaturedPackages() {
             </>
           )}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

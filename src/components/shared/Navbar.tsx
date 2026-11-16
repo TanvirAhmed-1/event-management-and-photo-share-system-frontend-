@@ -5,10 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { logout } from "@/redux/features/auth/authSlice";
 import { useGetUserDashboardQuery } from "@/redux/features/user/userApi";
+import { useGetAllEventTypesQuery } from "@/redux/features/eventType/eventTypeApi";
+import { useGetAllCategoriesQuery } from "@/redux/features/serviceCatalog/serviceCatalogApi";
+import { useGetAllPackagesQuery } from "@/redux/features/package/packageApi";
 import { removeTokenCookie } from "@/redux/server/storeCookies";
 import { getAvatarTheme } from "@/utils/avatarThemes";
 import { Input } from "@/components/ui/input";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import {
   Menu,
   X,
@@ -47,6 +50,9 @@ export default function Navbar() {
   const { data: dashboardRes } = useGetUserDashboardQuery(undefined, {
     skip: !isAuthenticated,
   });
+  const { data: eventTypesRes } = useGetAllEventTypesQuery();
+  const { data: serviceCategoriesRes } = useGetAllCategoriesQuery();
+  const { data: packagesRes } = useGetAllPackagesQuery(undefined);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -96,101 +102,65 @@ export default function Navbar() {
     router.push(`/services?q=${encodeURIComponent(q)}`);
   };
 
-  const navDropdowns = [
-    {
-      name: "Events",
-      items: [
-        {
-          label: "Wedding Celebration",
-          desc: "Royal stages, decor & photo share",
-          href: "/events?type=wedding",
-          icon: Heart,
-        },
-        {
-          label: "Birthday Parties",
-          desc: "Themed setups, cakes & photography",
-          href: "/events?type=birthday",
-          icon: Cake,
-        },
-        {
-          label: "Get Together",
-          desc: "Family & reunion celebrations",
-          href: "/events?type=get-together",
-          icon: Users,
-        },
-        {
-          label: "Corporate Events",
-          desc: "Seminars, galas & conferences",
-          href: "/events?type=corporate-event",
-          icon: Briefcase,
-        },
-        {
-          label: "Engagement & Anniversary",
-          desc: "Intimate luxury ceremonies",
-          href: "/events?type=engagement",
-          icon: Sparkles,
-        },
-      ],
-    },
-    {
-      name: "Services",
-      items: [
-        {
-          label: "Photography & Cinema",
-          desc: "4K shoots & candid coverage",
-          href: "/services?cat=photography",
-          icon: Camera,
-        },
-        {
-          label: "Stage & Floral Decor",
-          desc: "Custom mandaps & lighting",
-          href: "/services?cat=decoration",
-          icon: Sparkles,
-        },
-        {
-          label: "Catering & Buffets",
-          desc: "Authentic Kacchi & gourmet menus",
-          href: "/services?cat=catering",
-          icon: UtensilsCrossed,
-        },
-        {
-          label: "Sound, DJ & Venues",
-          desc: "Concert acoustics & halls",
-          href: "/services?cat=sound",
-          icon: Calendar,
-        },
-        {
-          label: "AI Photo Share Finder",
-          desc: "Selfie-based guest album search",
-          href: "/guest",
-          icon: QrCode,
-        },
-      ],
-    },
-    {
-      name: "Packages",
-      items: [
-        {
-          label: "All Event Packages",
-          desc: "Transparent bundled event pricing",
-          href: "/packages",
-          icon: Package,
-        },
-        {
-          label: "AI Storage Plans",
-          desc: "Cloud quota for guest face matching",
-          href: "/packages#storage",
-          icon: HardDrive,
-        },
-        {
-          label: "Food & Catering Menu",
-          desc: "Per-plate buffet & royal dishes",
-          href: "/food",
-          icon: UtensilsCrossed,
-        },
-      ],
-    },
-  ];
+  const navDropdowns = useMemo(() => {
+    const eventTypes = eventTypesRes?.data || [];
+    const serviceCategories = serviceCategoriesRes?.data || [];
+    const packages = packagesRes?.data || [];
+
+    const getEventIcon = (slug: string) => {
+      const s = (slug || "").toLowerCase();
+      if (s.includes("wedding")) return Heart;
+      if (s.includes("birthday")) return Cake;
+      if (s.includes("corporate")) return Briefcase;
+      if (s.includes("get-together")) return Users;
+      return Sparkles;
+    };
+
+    const getServiceIcon = (slug: string) => {
+      const s = (slug || "").toLowerCase();
+      if (s.includes("photo") || s.includes("video")) return Camera;
+      if (s.includes("cater") || s.includes("food")) return UtensilsCrossed;
+      if (s.includes("sound") || s.includes("venue")) return Calendar;
+      return Sparkles;
+    };
+
+    return [
+      {
+        name: "Events",
+        href: "/events",
+        items: eventTypes.map((et: any) => ({
+          label: et.name,
+          href: `/events?type=${encodeURIComponent(et.slug)}`,
+          icon: getEventIcon(et.slug),
+        })),
+      },
+      {
+        name: "Services",
+        href: "/services",
+        items: serviceCategories.map((cat: any) => ({
+          label: cat.name,
+          href: `/services?cat=${encodeURIComponent(cat.slug)}`,
+          icon: getServiceIcon(cat.slug),
+        })),
+      },
+      {
+        name: "Packages",
+        href: "/packages",
+        items: [
+          ...packages.map((pkg: any) => ({
+            label: pkg.name,
+            href: "/packages",
+            icon: HardDrive,
+          })),
+          {
+            label: "Food & Catering Menu",
+            href: "/food",
+            icon: UtensilsCrossed,
+          },
+        ],
+      },
+    ];
+  }, [eventTypesRes, serviceCategoriesRes, packagesRes]);
 
   const avatarTheme = getAvatarTheme(user?.avatarColor);
   const storageUsedMB = Number(
@@ -244,28 +214,23 @@ export default function Navbar() {
                     <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180 text-slate-400 group-hover:text-[#7C3AED]" />
                   </button>
 
-                  {/* Mega-style Dropdown Menu */}
-                  <div className="absolute left-0 top-full pt-2.5 w-72 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
-                    <div className="rounded-2xl bg-white p-2 shadow-2xl shadow-slate-900/10 border border-slate-100 ring-1 ring-slate-900/5 space-y-0.5">
-                      {menu.items.map((sub) => {
+                  {/* Compact Clean Dropdown Menu */}
+                  <div className="absolute left-0 top-full pt-2 w-56 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
+                    <div className="rounded-2xl bg-white p-1.5 shadow-2xl shadow-slate-900/10 border border-slate-100 ring-1 ring-slate-900/5 space-y-0.5">
+                      {menu.items.map((sub: any) => {
                         const SubIcon = sub.icon;
                         return (
                           <Link
                             key={sub.label}
                             href={sub.href}
-                            className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-purple-50/70 group/item transition-colors"
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-purple-50/70 group/item transition-colors"
                           >
-                            <div className="w-8 h-8 rounded-lg bg-slate-50 group-hover/item:bg-white border border-slate-100 flex items-center justify-center text-[#7C3AED] shrink-0 shadow-2xs transition-colors">
-                              <SubIcon className="w-4 h-4" />
+                            <div className="w-7 h-7 rounded-lg bg-slate-50 group-hover/item:bg-white border border-slate-100 flex items-center justify-center text-[#7C3AED] shrink-0 shadow-2xs transition-colors">
+                              <SubIcon className="w-3.5 h-3.5" />
                             </div>
-                            <div className="min-w-0">
-                              <div className="text-xs font-bold text-[#172554] group-hover/item:text-[#7C3AED] transition-colors">
-                                {sub.label}
-                              </div>
-                              <div className="text-[11px] text-slate-400 truncate mt-0.5">
-                                {sub.desc}
-                              </div>
-                            </div>
+                            <span className="text-xs font-bold text-[#172554] group-hover/item:text-[#7C3AED] transition-colors truncate">
+                              {sub.label}
+                            </span>
                           </Link>
                         );
                       })}

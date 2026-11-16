@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useRef, useEffect } from "react";
+import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, Check } from "lucide-react";
 import { cn } from "@/utils/cn";
 
@@ -11,6 +12,8 @@ interface SelectContextType {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   labels: Record<string, string>;
   registerLabel: (val: string, label: string) => void;
+  triggerRef: React.RefObject<HTMLDivElement | null>;
+  contentRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const SelectContext = createContext<SelectContextType>({
@@ -20,6 +23,8 @@ const SelectContext = createContext<SelectContextType>({
   setOpen: () => {},
   labels: {},
   registerLabel: () => {},
+  triggerRef: { current: null },
+  contentRef: { current: null },
 });
 
 export function Select({
@@ -33,15 +38,21 @@ export function Select({
 }) {
   const [open, setOpen] = useState(false);
   const [labels, setLabels] = useState<Record<string, string>>({});
-  const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  const registerLabel = React.useCallback((val: string, label: string) => {
+  const registerLabel = useCallback((val: string, label: string) => {
     setLabels((prev) => (prev[val] === label ? prev : { ...prev, [val]: label }));
   }, []);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        triggerRef.current &&
+        !triggerRef.current.contains(target) &&
+        (!contentRef.current || !contentRef.current.contains(target))
+      ) {
         setOpen(false);
       }
     };
@@ -53,9 +64,18 @@ export function Select({
 
   return (
     <SelectContext.Provider
-      value={{ value, onValueChange, open, setOpen, labels, registerLabel }}
+      value={{
+        value,
+        onValueChange,
+        open,
+        setOpen,
+        labels,
+        registerLabel,
+        triggerRef,
+        contentRef,
+      }}
     >
-      <div ref={containerRef} className="relative w-full">
+      <div ref={triggerRef} className="relative w-full">
         {children}
       </div>
     </SelectContext.Provider>
@@ -94,7 +114,12 @@ export function SelectTrigger({
 
 export function SelectValue({ placeholder = "Select an option..." }: { placeholder?: string }) {
   const { value, labels } = useContext(SelectContext);
-  const display = value ? labels[value] || value : null;
+  const display =
+    value && value !== "all"
+      ? labels[value] || value
+      : value === "all"
+      ? labels["all"] || placeholder
+      : null;
 
   return (
     <span className={cn("truncate", !display && "text-slate-400 font-normal")}>
@@ -110,18 +135,52 @@ export function SelectContent({
   children: React.ReactNode;
   className?: string;
 }) {
-  const { open } = useContext(SelectContext);
-  if (!open) return null;
+  const { open, triggerRef, contentRef } = useContext(SelectContext);
+  const [rect, setRect] = useState<{ top: number; left: number; width: number } | null>(null);
 
-  return (
+  const updateRect = useCallback(() => {
+    if (!triggerRef.current) return;
+    const r = triggerRef.current.getBoundingClientRect();
+    setRect({
+      top: r.bottom + 6,
+      left: r.left,
+      width: Math.max(r.width, 150),
+    });
+  }, [triggerRef]);
+
+  useEffect(() => {
+    if (!open) {
+      setRect(null);
+      return;
+    }
+    updateRect();
+    window.addEventListener("scroll", updateRect, true);
+    window.addEventListener("resize", updateRect);
+    return () => {
+      window.removeEventListener("scroll", updateRect, true);
+      window.removeEventListener("resize", updateRect);
+    };
+  }, [open, updateRect]);
+
+  if (!open || typeof document === "undefined" || !rect) return null;
+
+  return createPortal(
     <div
+      ref={contentRef}
+      style={{
+        position: "fixed",
+        top: rect.top,
+        left: rect.left,
+        minWidth: rect.width,
+      }}
       className={cn(
-        "absolute left-0 right-0 z-50 mt-1.5 max-h-60 overflow-y-auto rounded-2xl border border-slate-200/90 bg-white p-1.5 shadow-xl shadow-slate-900/10 motion-preset-fade motion-preset-slide-up-sm motion-duration-150",
+        "z-[9999] max-h-60 overflow-y-auto rounded-2xl border border-slate-200/90 bg-white p-1.5 shadow-2xl shadow-slate-900/15 motion-preset-fade motion-duration-150",
         className
       )}
     >
       {children}
-    </div>
+    </div>,
+    document.body
   );
 }
 

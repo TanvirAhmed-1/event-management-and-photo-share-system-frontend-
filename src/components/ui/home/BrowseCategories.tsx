@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useGetAllEventTypesQuery } from "@/redux/features/eventType/eventTypeApi";
+import Container from "@/components/shared/Container";
 
 export default function BrowseCategories() {
   const { data: response, isLoading } = useGetAllEventTypesQuery();
@@ -40,15 +41,11 @@ export default function BrowseCategories() {
   };
 
   return (
-    <section className="w-full py-14 lg:py-20 bg-white border-y border-slate-100">
-      <div className="mx-auto max-w-[1340px] px-4 sm:px-6 lg:px-8">
+    <section className="w-full py-10 bg-white border-y border-slate-100">
+      <Container>
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 motion-preset-slide-up-sm motion-preset-fade motion-duration-500">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-[#7C3AED] text-[11px] font-bold border border-purple-100 mb-2">
-              <Sparkles className="w-3 h-3" />
-              <span>Tailored Occasions</span>
-            </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#172554] tracking-tight">
               Browse Event Categories
             </h2>
@@ -108,8 +105,8 @@ export default function BrowseCategories() {
               const countText = cat._count?.services
                 ? `${cat._count.services} Services`
                 : cat.minGuests
-                ? `${cat.minGuests}-${cat.maxGuests || 500} Guests`
-                : "Curated";
+                  ? `${cat.minGuests}-${cat.maxGuests || 500} Guests`
+                  : "Curated";
 
               return (
                 <Link
@@ -157,7 +154,7 @@ export default function BrowseCategories() {
             })}
           </div>
         )}
-      </div>
+      </Container>
     </section>
   );
 }

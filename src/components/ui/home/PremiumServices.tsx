@@ -14,6 +14,7 @@ import {
   Crown,
 } from "lucide-react";
 import { useGetAllServicesQuery } from "@/redux/features/serviceCatalog/serviceCatalogApi";
+import Container from "@/components/shared/Container";
 
 export default function PremiumServices() {
   const { data: response, isLoading } = useGetAllServicesQuery();
@@ -36,15 +37,11 @@ export default function PremiumServices() {
   };
 
   return (
-    <section className="w-full py-14 lg:py-20 bg-[#F8FAFC]">
-      <div className="mx-auto max-w-[1340px] px-4 sm:px-6 lg:px-8">
+    <section className="w-full py-10 bg-[#F8FAFC]">
+      <Container>
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 motion-preset-slide-up-sm motion-preset-fade motion-duration-500">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-[11px] font-bold border border-amber-200/80 mb-2">
-              <Star className="w-3 h-3 text-[#F5B942] fill-[#F5B942]" />
-              <span>Verified Marketplace Services</span>
-            </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#172554] tracking-tight">
               Our Premium Services
             </h2>
@@ -104,8 +101,8 @@ export default function PremiumServices() {
                     (Array.isArray(item.images) && item.images.length > 0
                       ? item.images[0]
                       : typeof item.images === "string"
-                      ? item.images.split(" ")[0]
-                      : item.coverImage) ||
+                        ? item.images.split(" ")[0]
+                        : item.coverImage) ||
                     "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=600&auto=format&fit=crop";
 
                   const categoryName = item.category?.name || "Curated Service";
@@ -244,7 +241,7 @@ export default function PremiumServices() {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
