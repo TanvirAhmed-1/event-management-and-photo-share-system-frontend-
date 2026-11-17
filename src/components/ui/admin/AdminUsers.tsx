@@ -16,6 +16,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import TablePagination, { paginateItems } from "@/components/shared/TablePagination";
 import toast from "react-hot-toast";
 
 export default function AdminUsers() {
@@ -25,6 +34,7 @@ export default function AdminUsers() {
   const [updatePackage] = useUpdateUserPackageAdminMutation();
 
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const users = usersRes?.data || [];
   const packages = packagesRes?.data || [];
@@ -53,6 +63,11 @@ export default function AdminUsers() {
     u.name?.toLowerCase().includes(search.toLowerCase()) ||
     u.email?.toLowerCase().includes(search.toLowerCase()) ||
     u.phone?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const { paginatedItems: paginatedUsers, safePage } = paginateItems(
+    filtered,
+    currentPage
   );
 
   return (
@@ -85,83 +100,93 @@ export default function AdminUsers() {
       ) : filtered.length === 0 ? (
         <div className="py-12 text-center text-xs text-slate-400">No users found.</div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-500 font-semibold border-y border-slate-100">
-              <tr>
-                <th className="py-3 px-4">User</th>
-                <th className="py-3 px-4">Contact</th>
-                <th className="py-3 px-4">Role</th>
-                <th className="py-3 px-4">Assigned Plan</th>
-                <th className="py-3 px-4">Storage Usage</th>
-                <th className="py-3 px-4 text-right">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filtered.map((u: any) => (
-                <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="py-3 px-4">
-                    <div className="font-bold text-[#172554]">{u.name}</div>
-                    <div className="text-[11px] text-slate-400 font-mono">{u.email}</div>
-                  </td>
-                  <td className="py-3 px-4 text-slate-600 font-mono">{u.phone}</td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        u.role === "SUPER_ADMIN"
-                          ? "bg-purple-100 text-[#7C3AED]"
-                          : "bg-slate-100 text-slate-700"
-                      }`}
-                    >
-                      {u.role}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <Select
-                      value={u.packageId || "none"}
-                      onValueChange={(val) =>
-                        handlePackageChange(u.id, val === "none" ? "" : val)
-                      }
-                    >
-                      <SelectTrigger className="h-8 text-xs w-44">
-                        <SelectValue placeholder="No Active Plan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">No Active Plan</SelectItem>
-                        {packages.map((pkg: any) => (
-                          <SelectItem key={pkg.id} value={pkg.id}>
-                            {pkg.name} (
-                            {pkg.storageLimitMB >= 1000
-                              ? `${(pkg.storageLimitMB / 1000).toFixed(0)} GB`
-                              : `${pkg.storageLimitMB} MB`}
-                            )
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="py-3 px-4 font-mono text-[11px] text-slate-600">
-                    {(u.usedStorageMB || 0).toFixed(1)} MB /{" "}
-                    {u.package?.storageLimitMB ? `${u.package.storageLimitMB} MB` : "—"}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <button
-                      onClick={() => handleToggle(u.id, u.name)}
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        u.isActive
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : "bg-red-50 text-red-700 border border-red-200"
-                      }`}
-                    >
-                      {u.isActive ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-                      <span>{u.isActive ? "ACTIVE" : "INACTIVE"}</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <div className="rounded-xl border border-slate-200/80 overflow-hidden">
+            <Table className="text-xs">
+                <TableHeader className="bg-slate-50/90">
+                  <TableRow className="hover:bg-slate-50/90">
+                    <TableHead>User</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Assigned Plan</TableHead>
+                    <TableHead>Storage Usage</TableHead>
+                    <TableHead className="text-right">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedUsers.map((u: any) => (
+                    <TableRow key={u.id}>
+                      <TableCell className="py-3">
+                        <div className="font-bold text-[#172554]">{u.name}</div>
+                        <div className="text-[11px] text-slate-400 font-mono">{u.email}</div>
+                      </TableCell>
+                      <TableCell className="py-3 text-slate-600 font-mono">{u.phone}</TableCell>
+                      <TableCell className="py-3">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            u.role === "SUPER_ADMIN"
+                              ? "bg-purple-100 text-[#7C3AED]"
+                              : "bg-slate-100 text-slate-700"
+                          }`}
+                        >
+                          {u.role}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <Select
+                          value={u.packageId || "none"}
+                          onValueChange={(val) =>
+                            handlePackageChange(u.id, val === "none" ? "" : val)
+                          }
+                          className="w-44"
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="No Active Plan" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">No Active Plan</SelectItem>
+                            {packages.map((pkg: any) => (
+                              <SelectItem key={pkg.id} value={pkg.id}>
+                                {pkg.name} (
+                                {pkg.storageLimitMB >= 1000
+                                  ? `${(pkg.storageLimitMB / 1000).toFixed(0)} GB`
+                                  : `${pkg.storageLimitMB} MB`}
+                                )
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="py-3 font-mono text-[11px] text-slate-600">
+                        {(u.usedStorageMB || 0).toFixed(1)} MB /{" "}
+                        {u.package?.storageLimitMB ? `${u.package.storageLimitMB} MB` : "—"}
+                      </TableCell>
+                      <TableCell className="py-3 text-right">
+                        <button
+                          onClick={() => handleToggle(u.id, u.name)}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                            u.isActive
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-red-50 text-red-700 border border-red-200"
+                          }`}
+                        >
+                          {u.isActive ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                          <span>{u.isActive ? "ACTIVE" : "INACTIVE"}</span>
+                        </button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+          </div>
+          <div className="mt-4">
+            <TablePagination
+              currentPage={safePage}
+              totalItems={filtered.length}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        </>
       )}
     </div>
   );

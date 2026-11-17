@@ -40,6 +40,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import TipTapEditor from "@/components/shared/TipTapEditor";
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import TablePagination, { paginateItems } from "@/components/shared/TablePagination";
 import toast from "react-hot-toast";
 
 const BLOG_CATEGORIES = [
@@ -58,8 +68,11 @@ export default function AdminBlogs() {
   const [deleteBlog] = useDeleteBlogMutation();
 
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -157,14 +170,22 @@ export default function AdminBlogs() {
     }
   };
 
-  const handleDelete = async (id: string, itemTitle: string) => {
-    if (!confirm(`Delete blog article "${itemTitle}"?`)) return;
+  const handleDelete = (id: string, itemTitle: string) => {
+    setDeleteTarget({ id, title: itemTitle });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      await deleteBlog(id).unwrap();
+      await deleteBlog(deleteTarget.id).unwrap();
       toast.success("Blog article deleted");
+      setDeleteTarget(null);
       refetch();
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to delete blog article");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -172,6 +193,11 @@ export default function AdminBlogs() {
     (b: any) =>
       b.title?.toLowerCase().includes(search.toLowerCase()) ||
       b.category?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const { paginatedItems: paginatedBlogs, safePage } = paginateItems(
+    filtered,
+    currentPage
   );
 
   return (
@@ -223,90 +249,99 @@ export default function AdminBlogs() {
           No blog articles yet. Click &ldquo;Write Article&rdquo; to create one with TipTap.
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-500 font-semibold border-y border-slate-100">
-              <tr>
-                <th className="py-3 px-4">Cover</th>
-                <th className="py-3 px-4">Title &amp; Slug</th>
-                <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Read Time</th>
-                <th className="py-3 px-4">Published</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filtered.map((b: any) => (
-                <tr key={b.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="py-2.5 px-4">
-                    <div className="relative w-14 h-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
-                      {b.coverImage ? (
-                        <Image
-                          src={b.coverImage}
-                          alt={b.title}
-                          fill
-                          className="object-cover"
-                          sizes="56px"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-400">
-                          <ImageIcon className="w-4 h-4" />
+        <>
+          <div className="rounded-xl border border-slate-200/80 overflow-hidden">
+            <Table className="text-xs">
+                <TableHeader className="bg-slate-50/90">
+                  <TableRow className="hover:bg-slate-50/90">
+                    <TableHead>Cover</TableHead>
+                    <TableHead>Title &amp; Slug</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Read Time</TableHead>
+                    <TableHead>Published</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedBlogs.map((b: any) => (
+                    <TableRow key={b.id}>
+                      <TableCell className="py-2.5">
+                        <div className="relative w-14 h-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+                          {b.coverImage ? (
+                            <Image
+                              src={b.coverImage}
+                              alt={b.title}
+                              fill
+                              className="object-cover"
+                              sizes="56px"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-400">
+                              <ImageIcon className="w-4 h-4" />
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="font-bold text-[#172554] line-clamp-1">{b.title}</div>
-                    <div className="text-[11px] font-mono text-slate-400">/blog/{b.slug}</div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="px-2.5 py-1 rounded-full bg-purple-50 text-[#7C3AED] font-semibold text-[11px]">
-                      {b.category}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-slate-500">
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      {b.readingTimeMin || 3} min
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <Switch
-                      checked={Boolean(b.isPublished)}
-                      onCheckedChange={() => handleToggle(b.id)}
-                    />
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="inline-flex items-center gap-1">
-                      <Link
-                        href={`/blog/${b.slug}`}
-                        target="_blank"
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-[#7C3AED] hover:bg-purple-50 transition"
-                        title="View live post"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
-                      <button
-                        onClick={() => openEdit(b)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition"
-                        title="Edit with TipTap"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(b.id, b.title)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <div className="font-bold text-[#172554] line-clamp-1">{b.title}</div>
+                        <div className="text-[11px] font-mono text-slate-400">/blog/{b.slug}</div>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <span className="px-2.5 py-1 rounded-full bg-purple-50 text-[#7C3AED] font-semibold text-[11px]">
+                          {b.category}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-3 text-slate-500">
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          {b.readingTimeMin || 3} min
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <Switch
+                          checked={Boolean(b.isPublished)}
+                          onCheckedChange={() => handleToggle(b.id)}
+                        />
+                      </TableCell>
+                      <TableCell className="py-3 text-right">
+                        <div className="inline-flex items-center gap-1">
+                          <Link
+                            href={`/blog/${b.slug}`}
+                            target="_blank"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-[#7C3AED] hover:bg-purple-50 transition"
+                            title="View live post"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
+                          <button
+                            onClick={() => openEdit(b)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition"
+                            title="Edit with TipTap"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(b.id, b.title)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+          </div>
+          <div className="mt-4">
+            <TablePagination
+              currentPage={safePage}
+              totalItems={filtered.length}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        </>
       )}
 
       {/* TipTap Blog Editor Sheet */}
@@ -472,6 +507,15 @@ export default function AdminBlogs() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
+      <DeleteConfirmDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Delete Blog Article?"
+        description={`Are you sure you want to delete "${deleteTarget?.title || ""}"? This action cannot be undone.`}
+        isLoading={isDeleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

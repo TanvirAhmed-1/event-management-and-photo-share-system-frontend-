@@ -4,40 +4,64 @@ export interface FoodCategory {
   id: string;
   name: string;
   slug: string;
-  description?: string;
-  icon?: string;
-  order: number;
+  description?: string | null;
+  imageUrl?: string | null;
+  icon?: string | null;
+  displayOrder?: number;
+  order?: number;
+  isActive?: boolean;
   items?: FoodItem[];
 }
 
 export interface FoodItem {
   id: string;
   categoryId: string;
-  category?: FoodCategory;
+  category?: FoodCategory | null;
   name: string;
   slug: string;
-  description?: string;
+  description?: string | null;
   pricePerPerson: number;
-  isVegetarian: boolean;
+  isVegetarian?: boolean;
   minGuests?: number;
+  minOrderQuantity?: number;
+  maxOrderQuantity?: number | null;
+  allowQuantityOverride?: boolean;
   isActive: boolean;
-  coverImage?: string;
+  coverImage?: string | null;
   images?: string[];
   dietaryLabels?: string[];
 }
 
 const foodApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllFoodCategories: builder.query<{ success: boolean; data: FoodCategory[] }, void>({
-      query: () => ({
-        url: "/food/categories",
+    getAllFoodCategories: builder.query<
+      { success: boolean; data: FoodCategory[] },
+      { includeInactive?: boolean } | void
+    >({
+      query: (params) => ({
+        url: params?.includeInactive
+          ? "/food/categories?includeInactive=true"
+          : "/food/categories",
         method: "GET",
       }),
       providesTags: ["food"],
     }),
-    getAllFoodItems: builder.query<{ success: boolean; data: FoodItem[] }, void>({
-      query: () => ({
-        url: "/food/items",
+    createFoodCategory: builder.mutation({
+      query: (body) => ({
+        url: "/food/categories",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["food"],
+    }),
+    getAllFoodItems: builder.query<
+      { success: boolean; data: FoodItem[] },
+      { includeInactive?: boolean } | void
+    >({
+      query: (params) => ({
+        url: params?.includeInactive
+          ? "/food/items?includeInactive=true"
+          : "/food/items",
         method: "GET",
       }),
       providesTags: ["food"],
@@ -84,6 +108,7 @@ const foodApi = baseApi.injectEndpoints({
 
 export const {
   useGetAllFoodCategoriesQuery,
+  useCreateFoodCategoryMutation,
   useGetAllFoodItemsQuery,
   useGetFoodByEventTypeQuery,
   useCreateFoodItemMutation,
@@ -91,4 +116,3 @@ export const {
   useDeleteFoodItemMutation,
   useToggleActiveFoodItemMutation,
 } = foodApi;
-

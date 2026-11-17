@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/utils/cn";
 
@@ -13,6 +14,12 @@ export function Dialog({
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && open) {
@@ -29,16 +36,19 @@ export function Dialog({
     };
   }, [open, onOpenChange]);
 
-  if (!open) return null;
+  if (!mounted || !open) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5">
       <div
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs motion-preset-fade motion-duration-200"
+        className="fixed inset-0 bg-slate-950/55 backdrop-blur-xs motion-preset-fade motion-duration-200"
         onClick={() => onOpenChange(false)}
       />
-      <div className="relative z-10 w-full max-w-lg">{children}</div>
-    </div>
+      <div className="relative z-10 w-full flex items-center justify-center pointer-events-none">
+        {children}
+      </div>
+    </div>,
+    document.body
   );
 }
 
@@ -54,7 +64,7 @@ export function DialogContent({
   return (
     <div
       className={cn(
-        "relative w-full rounded-3xl bg-white border border-slate-200/90 shadow-2xl p-6 sm:p-7 motion-preset-fade motion-preset-slide-up-sm motion-duration-200",
+        "relative w-full max-w-lg pointer-events-auto rounded-2xl bg-white border border-slate-200/90 shadow-2xl p-5 motion-preset-fade motion-preset-slide-up-sm motion-duration-200",
         className
       )}
     >
@@ -62,7 +72,7 @@ export function DialogContent({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+          className="absolute right-3.5 top-3.5 z-10 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
           aria-label="Close"
         >
           <X className="h-4 w-4" />
@@ -80,7 +90,7 @@ export function DialogHeader({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <div className={cn("space-y-1.5 text-left mb-5", className)}>{children}</div>;
+  return <div className={cn("space-y-1 text-left mb-3 pr-7", className)}>{children}</div>;
 }
 
 export function DialogTitle({
@@ -91,7 +101,7 @@ export function DialogTitle({
   className?: string;
 }) {
   return (
-    <h3 className={cn("text-lg font-extrabold text-[#172554] tracking-tight", className)}>
+    <h3 className={cn("text-base font-extrabold text-[#172554] tracking-tight", className)}>
       {children}
     </h3>
   );
@@ -104,7 +114,7 @@ export function DialogDescription({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <p className={cn("text-xs text-slate-500 leading-relaxed", className)}>{children}</p>;
+  return <p className={cn("text-xs text-slate-500 leading-snug", className)}>{children}</p>;
 }
 
 export function DialogFooter({
@@ -115,7 +125,7 @@ export function DialogFooter({
   className?: string;
 }) {
   return (
-    <div className={cn("mt-6 pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5", className)}>
+    <div className={cn("mt-4 pt-3 border-t border-slate-100 flex items-center justify-end gap-2", className)}>
       {children}
     </div>
   );

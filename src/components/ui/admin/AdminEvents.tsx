@@ -34,10 +34,22 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import TablePagination, { paginateItems } from "@/components/shared/TablePagination";
 
 export default function AdminEvents() {
   const [conflictEvent, setConflictEvent] = useState<any | null>(null);
   const [overrideLoading, setOverrideLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { data: eventsRes, isLoading, refetch } = useGetAllEventsQuery(undefined);
   const { data: settingsRes } = useGetPlatformSettingsQuery();
   const [toggleActive] = useToggleEventActiveAdminMutation();
@@ -45,6 +57,7 @@ export default function AdminEvents() {
   const [deleteEvent] = useDeleteEventMutation();
 
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const events = eventsRes?.data || [];
   const settings = settingsRes?.data || {
@@ -126,14 +139,22 @@ export default function AdminEvents() {
     }
   };
 
-  const handleDelete = async (eventId: string, title: string) => {
-    if (!confirm(`Are you sure you want to permanently delete event "${title}"?`)) return;
+  const handleDelete = (eventId: string, title: string) => {
+    setDeleteTarget({ id: eventId, title });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      await deleteEvent(eventId).unwrap();
+      await deleteEvent(deleteTarget.id).unwrap();
       toast.success("Event deleted successfully!");
+      setDeleteTarget(null);
       refetch();
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to delete event");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -143,6 +164,11 @@ export default function AdminEvents() {
       (e.user?.name || "").toLowerCase().includes(search.toLowerCase()) ||
       (e.user?.email || "").toLowerCase().includes(search.toLowerCase()) ||
       (e.venue || "").toLowerCase().includes(search.toLowerCase())
+  );
+
+  const { paginatedItems: paginatedEvents, safePage } = paginateItems(
+    filtered,
+    currentPage
   );
 
   return (
@@ -258,154 +284,161 @@ export default function AdminEvents() {
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center text-xs text-slate-400">No events found.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 font-semibold border-y border-slate-100">
-                <tr>
-                  <th className="py-3 px-4">Cover</th>
-                  <th className="py-3 px-4">Event Title</th>
-                  <th className="py-3 px-4">Host Details</th>
-                  <th className="py-3 px-4">Event Date</th>
-                  <th className="py-3 px-4">Booking Status</th>
-                  <th className="py-3 px-4">Active</th>
-                  <th className="py-3 px-4 text-right">Review &amp; Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((e: any) => {
-                  const cover =
-                    e.coverImage ||
-                    "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=400&auto=format&fit=crop";
-                  const dateKey = e.eventDate
-                    ? new Date(e.eventDate).toISOString().split("T")[0]
-                    : null;
-                  const sameDateCount = dateKey ? dateGroups[dateKey]?.length || 0 : 0;
-                  const isSameDateConflict =
-                    settings.warnAdminOnSameDate &&
-                    sameDateCount > 1 &&
-                    e.status !== "CANCELLED";
+          <>
+            <div className="rounded-xl border border-slate-200/80 overflow-hidden">
+              <Table className="text-xs">
+                  <TableHeader className="bg-slate-50/90">
+                    <TableRow className="hover:bg-slate-50/90">
+                      <TableHead>Cover</TableHead>
+                      <TableHead>Event Title</TableHead>
+                      <TableHead>Host Details</TableHead>
+                      <TableHead>Event Date</TableHead>
+                      <TableHead>Booking Status</TableHead>
+                      <TableHead>Active</TableHead>
+                      <TableHead className="text-right">Review &amp; Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedEvents.map((e: any) => {
+                      const cover =
+                        e.coverImage ||
+                        "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=400&auto=format&fit=crop";
+                      const dateKey = e.eventDate
+                        ? new Date(e.eventDate).toISOString().split("T")[0]
+                        : null;
+                      const sameDateCount = dateKey ? dateGroups[dateKey]?.length || 0 : 0;
+                      const isSameDateConflict =
+                        settings.warnAdminOnSameDate &&
+                        sameDateCount > 1 &&
+                        e.status !== "CANCELLED";
 
-                  return (
-                    <tr
-                      key={e.id}
-                      className={`hover:bg-slate-50/70 transition-colors ${
-                        isSameDateConflict ? "bg-amber-50/30" : ""
-                      }`}
-                    >
-                      <td className="py-2.5 px-4">
-                        <div className="relative w-12 h-10 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shadow-2xs">
-                          {cover ? (
-                            <Image
-                              src={cover}
-                              alt={e.title}
-                              fill
-                              className="object-cover"
-                              sizes="48px"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-400">
-                              <ImageIcon className="w-4 h-4" />
+                      return (
+                        <TableRow
+                          key={e.id}
+                          className={isSameDateConflict ? "bg-amber-50/30" : undefined}
+                        >
+                          <TableCell className="py-2.5">
+                            <div className="relative w-12 h-10 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shadow-2xs">
+                              {cover ? (
+                                <Image
+                                  src={cover}
+                                  alt={e.title}
+                                  fill
+                                  className="object-cover"
+                                  sizes="48px"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                  <ImageIcon className="w-4 h-4" />
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="font-bold text-[#172554] block">{e.title}</span>
-                        <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
-                          <span className="inline-flex items-center gap-1 truncate max-w-[180px]">
-                            <MapPin className="w-3 h-3 text-[#7C3AED] shrink-0" />
-                            <span>{e.venue || "Location pending"}</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-[#7C3AED] font-semibold">
-                            <Users className="w-3 h-3" />
-                            <span>{e.guestCount || 0}</span>
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="font-semibold text-slate-700 block">
-                          {e.user?.name || "Host User"}
-                        </span>
-                        <span className="text-[10px] text-slate-400">{e.user?.email || "—"}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="font-mono text-slate-700 font-semibold block">
-                          {dateKey || "TBD"}
-                        </span>
-                        {isSameDateConflict && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 mt-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-[9px] font-extrabold">
-                            <AlertTriangle className="w-2.5 h-2.5" />
-                            <span>Same Date ({sameDateCount})</span>
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                            e.status === "CONFIRMED"
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : e.status === "CANCELLED"
-                              ? "bg-rose-50 text-rose-700 border border-rose-200"
-                              : "bg-amber-50 text-amber-800 border border-amber-200"
-                          }`}
-                        >
-                          {e.status || "DRAFT"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <button
-                          onClick={() => handleToggle(e.id, e.title)}
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                            e.isActive
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-red-50 text-red-700 border border-red-200"
-                          }`}
-                        >
-                          {e.isActive ? (
-                            <CheckCircle className="w-3 h-3" />
-                          ) : (
-                            <XCircle className="w-3 h-3" />
-                          )}
-                          <span>{e.isActive ? "ACTIVE" : "INACTIVE"}</span>
-                        </button>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <div className="inline-flex items-center gap-1">
-                          {e.status !== "CONFIRMED" && (
-                            <button
-                              disabled={isUpdatingStatus}
-                              onClick={() => handleStatusDecision(e, "CONFIRMED")}
-                              className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition"
-                              title="Accept / Approve Request"
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <span className="font-bold text-[#172554] block">{e.title}</span>
+                            <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                              <span className="inline-flex items-center gap-1 truncate max-w-[180px]">
+                                <MapPin className="w-3 h-3 text-[#7C3AED] shrink-0" />
+                                <span>{e.venue || "Location pending"}</span>
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-[#7C3AED] font-semibold">
+                                <Users className="w-3 h-3" />
+                                <span>{e.guestCount || 0}</span>
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <span className="font-semibold text-slate-700 block">
+                              {e.user?.name || "Host User"}
+                            </span>
+                            <span className="text-[10px] text-slate-400">{e.user?.email || "—"}</span>
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <span className="font-mono text-slate-700 font-semibold block">
+                              {dateKey || "TBD"}
+                            </span>
+                            {isSameDateConflict && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 mt-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-[9px] font-extrabold">
+                                <AlertTriangle className="w-2.5 h-2.5" />
+                                <span>Same Date ({sameDateCount})</span>
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                e.status === "CONFIRMED"
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                  : e.status === "CANCELLED"
+                                  ? "bg-rose-50 text-rose-700 border border-rose-200"
+                                  : "bg-amber-50 text-amber-800 border border-amber-200"
+                              }`}
                             >
-                              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                            </button>
-                          )}
-                          {e.status !== "CANCELLED" && (
+                              {e.status || "DRAFT"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-3">
                             <button
-                              disabled={isUpdatingStatus}
-                              onClick={() => handleStatusDecision(e, "CANCELLED")}
-                              className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition"
-                              title="Decline Request"
+                              onClick={() => handleToggle(e.id, e.title)}
+                              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                                e.isActive
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                  : "bg-red-50 text-red-700 border border-red-200"
+                              }`}
                             >
-                              <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                              {e.isActive ? (
+                                <CheckCircle className="w-3 h-3" />
+                              ) : (
+                                <XCircle className="w-3 h-3" />
+                              )}
+                              <span>{e.isActive ? "ACTIVE" : "INACTIVE"}</span>
                             </button>
-                          )}
-                          <button
-                            onClick={() => handleDelete(e.id, e.title)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
-                            title="Delete event"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                          </TableCell>
+                          <TableCell className="py-3 text-right">
+                            <div className="inline-flex items-center gap-1">
+                              {e.status !== "CONFIRMED" && (
+                                <button
+                                  disabled={isUpdatingStatus}
+                                  onClick={() => handleStatusDecision(e, "CONFIRMED")}
+                                  className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition"
+                                  title="Accept / Approve Request"
+                                >
+                                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                                </button>
+                              )}
+                              {e.status !== "CANCELLED" && (
+                                <button
+                                  disabled={isUpdatingStatus}
+                                  onClick={() => handleStatusDecision(e, "CANCELLED")}
+                                  className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition"
+                                  title="Decline Request"
+                                >
+                                  <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDelete(e.id, e.title)}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                                title="Delete event"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+            </div>
+            <div className="mt-4">
+              <TablePagination
+                currentPage={safePage}
+                totalItems={filtered.length}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          </>
         )}
       </div>
 
@@ -452,6 +485,15 @@ export default function AdminEvents() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DeleteConfirmDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Delete Event?"
+        description={`Are you sure you want to permanently delete event "${deleteTarget?.title || ""}"?`}
+        isLoading={isDeleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

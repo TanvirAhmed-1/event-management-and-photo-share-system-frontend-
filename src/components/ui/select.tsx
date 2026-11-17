@@ -31,10 +31,12 @@ export function Select({
   value = "",
   onValueChange,
   children,
+  className,
 }: {
   value?: string;
   onValueChange: (val: string) => void;
   children: React.ReactNode;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [labels, setLabels] = useState<Record<string, string>>({});
@@ -75,7 +77,7 @@ export function Select({
         contentRef,
       }}
     >
-      <div ref={triggerRef} className="relative w-full">
+      <div ref={triggerRef} className={cn("relative w-full", className)}>
         {children}
       </div>
     </SelectContext.Provider>
@@ -128,6 +130,19 @@ export function SelectValue({ placeholder = "Select an option..." }: { placehold
   );
 }
 
+function extractNodeText(node: React.ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(extractNodeText).join("");
+  }
+  if (React.isValidElement<{ children?: React.ReactNode }>(node) && node.props?.children) {
+    return extractNodeText(node.props.children);
+  }
+  return "";
+}
+
 export function SelectContent({
   children,
   className,
@@ -135,8 +150,23 @@ export function SelectContent({
   children: React.ReactNode;
   className?: string;
 }) {
-  const { open, triggerRef, contentRef } = useContext(SelectContext);
+  const { open, triggerRef, contentRef, registerLabel } = useContext(SelectContext);
   const [rect, setRect] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  useEffect(() => {
+    const visit = (nodes: React.ReactNode) => {
+      React.Children.forEach(nodes, (child) => {
+        if (!React.isValidElement<{ value?: string; children?: React.ReactNode }>(child)) return;
+        if (typeof child.props?.value === "string") {
+          const text = extractNodeText(child.props.children).trim();
+          if (text) registerLabel(child.props.value, text);
+        } else if (child.props?.children) {
+          visit(child.props.children);
+        }
+      });
+    };
+    visit(children);
+  }, [children, registerLabel]);
 
   const updateRect = useCallback(() => {
     if (!triggerRef.current) return;
@@ -198,8 +228,9 @@ export function SelectItem({
   const isSelected = selected === value;
 
   useEffect(() => {
-    if (typeof children === "string") {
-      registerLabel(value, children);
+    const label = extractNodeText(children).trim();
+    if (label) {
+      registerLabel(value, label);
     }
   }, [value, children, registerLabel]);
 

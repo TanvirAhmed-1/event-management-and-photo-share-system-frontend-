@@ -591,11 +591,11 @@ export default function DashboardProfileView({
           </div>
         </div>
 
-        <div className="px-6 pb-6 -mt-10 relative">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
+        <div className="px-6 pb-6 pt-3 relative">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
             {/* Identity Row */}
-            <div className="flex flex-col sm:flex-row sm:items-end gap-4 min-w-0">
-              <div className="relative shrink-0">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 min-w-0">
+              <div className="relative shrink-0 -mt-12 sm:-mt-14 self-start sm:self-auto">
                 <div
                   className={`w-20 h-20 rounded-2xl ${currentAvatarTheme.gradient} text-white font-extrabold text-2xl flex items-center justify-center shadow-xl ring-4 ring-white`}
                 >
@@ -609,7 +609,7 @@ export default function DashboardProfileView({
                 </span>
               </div>
 
-              <div className="space-y-1.5 min-w-0 pt-1">
+              <div className="space-y-1.5 min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-xl sm:text-2xl font-extrabold text-[#172554] tracking-tight truncate">
                     {displayName}

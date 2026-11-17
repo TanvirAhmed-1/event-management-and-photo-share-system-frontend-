@@ -271,19 +271,6 @@ export default function Navbar() {
               >
                 Guide
               </Link>
-
-              {/* Prominent AI Photo Finder Pill */}
-              <Link
-                href="/guest"
-                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all ${
-                  pathname?.startsWith("/guest")
-                    ? "bg-[#7C3AED] text-white border-[#7C3AED] shadow-sm shadow-[#7C3AED]/25"
-                    : "bg-gradient-to-r from-purple-50 to-amber-50/70 text-[#7C3AED] border-purple-200/80 hover:border-[#7C3AED]/50 hover:shadow-xs"
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#F5B942] fill-[#F5B942]" />
-                <span>AI Photo Finder</span>
-              </Link>
             </nav>
 
             {/* 3. Right: Search & Auth / Avatar Profile Menu */}
@@ -319,7 +306,7 @@ export default function Navbar() {
                         {user.name}
                       </span>
                       <span className="text-[10px] font-semibold text-slate-400">
-                        {user.role === "SUPER_ADMIN" ? "Admin" : "Profile"}
+                        {user.role === "SUPER_ADMIN" || user.role === "ADMIN" ? "Admin" : "Profile"}
                       </span>
                     </div>
                     <ChevronDown
@@ -347,7 +334,7 @@ export default function Navbar() {
                               </p>
                               <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-100 text-[#7C3AED] text-[9px] font-extrabold shrink-0">
                                 <Crown className="w-2.5 h-2.5 text-[#F5B942]" />
-                                {user.role === "SUPER_ADMIN" ? "ADMIN" : "HOST"}
+                                {user.role === "SUPER_ADMIN" || user.role === "ADMIN" ? "ADMIN" : "HOST"}
                               </span>
                             </div>
                             <p className="text-[11px] text-slate-500 truncate mt-0.5">
@@ -398,7 +385,7 @@ export default function Navbar() {
                       <div className="p-2 space-y-0.5">
                         <Link
                           href={
-                            user.role === "SUPER_ADMIN"
+                            user.role === "SUPER_ADMIN" || user.role === "ADMIN"
                               ? "/admin/profile"
                               : "/dashboard/profile"
                           }
@@ -411,20 +398,20 @@ export default function Navbar() {
 
                         <Link
                           href={
-                            user.role === "SUPER_ADMIN"
+                            user.role === "SUPER_ADMIN" || user.role === "ADMIN"
                               ? "/admin"
                               : "/dashboard"
                           }
                           onClick={() => setProfileMenuOpen(false)}
                           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-purple-50/80 hover:text-[#7C3AED] transition"
                         >
-                          {user.role === "SUPER_ADMIN" ? (
+                          {user.role === "SUPER_ADMIN" || user.role === "ADMIN" ? (
                             <ShieldCheck className="w-4 h-4 text-amber-600" />
                           ) : (
                             <LayoutDashboard className="w-4 h-4 text-[#7C3AED]" />
                           )}
                           <span>
-                            {user.role === "SUPER_ADMIN"
+                            {user.role === "SUPER_ADMIN" || user.role === "ADMIN"
                               ? "Admin Console"
                               : "Organizer Dashboard"}
                           </span>
@@ -432,7 +419,7 @@ export default function Navbar() {
 
                         <Link
                           href={
-                            user.role === "SUPER_ADMIN"
+                            user.role === "SUPER_ADMIN" || user.role === "ADMIN"
                               ? "/admin/packages"
                               : "/dashboard/storage"
                           }
@@ -452,7 +439,7 @@ export default function Navbar() {
                           <span>AI Photo Scanner</span>
                         </Link>
 
-                        {user.role === "SUPER_ADMIN" && (
+                        {(user.role === "SUPER_ADMIN" || user.role === "ADMIN") && (
                           <Link
                             href="/dashboard"
                             onClick={() => setProfileMenuOpen(false)}
@@ -537,7 +524,7 @@ export default function Navbar() {
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     href={
-                      user.role === "SUPER_ADMIN"
+                      user.role === "SUPER_ADMIN" || user.role === "ADMIN"
                         ? "/admin/profile"
                         : "/dashboard/profile"
                     }
@@ -567,14 +554,6 @@ export default function Navbar() {
                 className="block font-semibold text-slate-800 hover:text-[#7C3AED] py-1.5"
               >
                 Home
-              </Link>
-              <Link
-                href="/guest"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 font-bold text-[#7C3AED] py-1.5"
-              >
-                <Sparkles className="w-4 h-4 text-[#F5B942]" />
-                <span>AI Photo Finder</span>
               </Link>
             </div>
 
@@ -618,12 +597,12 @@ export default function Navbar() {
             {isAuthenticated && user ? (
               <div className="pt-4 border-t border-slate-100 space-y-2">
                 <Link
-                  href={user.role === "SUPER_ADMIN" ? "/admin" : "/dashboard"}
+                  href={user.role === "SUPER_ADMIN" || user.role === "ADMIN" ? "/admin" : "/dashboard"}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block w-full text-center py-2.5 rounded-xl bg-[#172554] text-white font-semibold text-sm"
                 >
                   Go to{" "}
-                  {user.role === "SUPER_ADMIN" ? "Admin Console" : "Dashboard"}
+                  {user.role === "SUPER_ADMIN" || user.role === "ADMIN" ? "Admin Console" : "Dashboard"}
                 </Link>
                 <button
                   onClick={() => {

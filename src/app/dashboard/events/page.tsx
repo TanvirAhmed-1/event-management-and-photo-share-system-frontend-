@@ -8,9 +8,9 @@ import {
 import { Calendar, Plus, Search, Sparkles } from "lucide-react";
 import CreateEventSheet from "@/components/shared/CreateEventSheet";
 import EventPoolCard from "@/components/shared/EventPoolCard";
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
-import Swal from "sweetalert2";
 
 /**
  * Host dashboard child page listing all planned events & photo galleries with search and creation drawer.
@@ -25,6 +25,8 @@ export default function DashboardEventsPage() {
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const events = eventsResponse?.data || [];
   const filteredEvents = events.filter((ev: any) =>
@@ -33,25 +35,22 @@ export default function DashboardEventsPage() {
       .includes(searchTerm.toLowerCase())
   );
 
-  const handleDeleteEvent = async (eventId: string, title: string) => {
-    const confirmResult = await Swal.fire({
-      title: "Delete Event Pool?",
-      text: `Are you sure you want to delete "${title}"? All uploaded photos will be removed.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#7C3AED",
-      cancelButtonColor: "#64748B",
-      confirmButtonText: "Yes, Delete",
-    });
+  const handleDeleteEvent = (eventId: string, title: string) => {
+    setDeleteTarget({ id: eventId, title });
+  };
 
-    if (confirmResult.isConfirmed) {
-      try {
-        await deleteEvent(eventId).unwrap();
-        toast.success("Event deleted successfully!");
-        refetch();
-      } catch (err: any) {
-        toast.error(err?.data?.message || "Failed to delete event.");
-      }
+  const confirmDeleteEvent = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      await deleteEvent(deleteTarget.id).unwrap();
+      toast.success("Event deleted successfully!");
+      setDeleteTarget(null);
+      refetch();
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to delete event.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -137,6 +136,17 @@ export default function DashboardEventsPage() {
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         onCreated={refetch}
+      />
+
+      <DeleteConfirmDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title="Delete Event Pool?"
+        description={`Are you sure you want to delete "${deleteTarget?.title || ""}"? All uploaded photos will be removed permanently.`}
+        isLoading={isDeleting}
+        onConfirm={confirmDeleteEvent}
       />
     </div>
   );

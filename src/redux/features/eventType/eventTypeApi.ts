@@ -4,22 +4,38 @@ export interface EventType {
   id: string;
   name: string;
   slug: string;
-  description?: string;
-  icon?: string;
-  coverImage?: string;
+  description?: string | null;
+  icon?: string | null;
+  imageUrl?: string | null;
+  coverImage?: string | null;
   isActive: boolean;
   minGuests?: number;
-  maxGuests?: number;
+  maxGuests?: number | null;
+  defaultGuests?: number | null;
+  allowServiceSelection?: boolean;
+  allowFoodSelection?: boolean;
+  displayOrder?: number;
   customFields?: any[];
+  fields?: any[];
   services?: any[];
   foodAssignments?: any[];
+  _count?: {
+    services?: number;
+    foods?: number;
+    events?: number;
+  };
 }
 
 const eventTypeApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllEventTypes: builder.query<{ success: boolean; data: EventType[] }, void>({
-      query: () => ({
-        url: "/event-types",
+    getAllEventTypes: builder.query<
+      { success: boolean; data: EventType[] },
+      { includeInactive?: boolean } | void
+    >({
+      query: (params) => ({
+        url: params?.includeInactive
+          ? "/event-types?includeInactive=true"
+          : "/event-types",
         method: "GET",
       }),
       providesTags: ["eventType"],
@@ -72,4 +88,3 @@ export const {
   useDeleteEventTypeMutation,
   useToggleActiveEventTypeMutation,
 } = eventTypeApi;
-

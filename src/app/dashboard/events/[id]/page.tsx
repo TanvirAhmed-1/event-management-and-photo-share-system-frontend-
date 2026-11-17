@@ -25,8 +25,8 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import FileUpload from "@/components/FileUpload";
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import toast from "react-hot-toast";
-import Swal from "sweetalert2";
 import Link from "next/link";
 
 export default function EventDetail() {
@@ -91,26 +91,26 @@ export default function EventDetail() {
     }
   };
 
-  const handleDeletePhoto = async (photoId: string) => {
-    const confirmResult = await Swal.fire({
-      title: "Delete Photo?",
-      text: "Are you sure? Face embeddings for this photo will also be removed.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#7C3AED",
-      cancelButtonColor: "#64748B",
-      confirmButtonText: "Yes, Delete",
-    });
+  const [deletePhotoId, setDeletePhotoId] = useState<string | null>(null);
+  const [isDeletingPhoto, setIsDeletingPhoto] = useState(false);
 
-    if (confirmResult.isConfirmed) {
-      try {
-        await deletePhoto(photoId).unwrap();
-        toast.success("Photo deleted successfully!");
-        refetchEvent();
-        refetchPhotos();
-      } catch (err: any) {
-        toast.error("Failed to delete photo.");
-      }
+  const handleDeletePhoto = (photoId: string) => {
+    setDeletePhotoId(photoId);
+  };
+
+  const confirmDeletePhoto = async () => {
+    if (!deletePhotoId) return;
+    setIsDeletingPhoto(true);
+    try {
+      await deletePhoto(deletePhotoId).unwrap();
+      toast.success("Photo deleted successfully!");
+      setDeletePhotoId(null);
+      refetchEvent();
+      refetchPhotos();
+    } catch (err: any) {
+      toast.error("Failed to delete photo.");
+    } finally {
+      setIsDeletingPhoto(false);
     }
   };
 
@@ -291,6 +291,17 @@ export default function EventDetail() {
             </div>
           )}
         </div>
+
+        <DeleteConfirmDialog
+          open={Boolean(deletePhotoId)}
+          onOpenChange={(open) => {
+            if (!open) setDeletePhotoId(null);
+          }}
+          title="Delete Photo?"
+          description="Are you sure you want to delete this photo? Face embeddings for this photo will also be removed."
+          isLoading={isDeletingPhoto}
+          onConfirm={confirmDeletePhoto}
+        />
       </div>
   );
 }

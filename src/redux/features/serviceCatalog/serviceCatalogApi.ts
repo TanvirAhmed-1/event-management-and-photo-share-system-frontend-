@@ -5,33 +5,65 @@ export interface ServiceCategory {
   name: string;
   slug: string;
   description?: string;
+  imageUrl?: string;
   icon?: string;
-  order: number;
+  displayOrder?: number;
+  order?: number;
+  isActive?: boolean;
   services?: ServiceItem[];
+}
+
+export interface ServicePackageItem {
+  id: string;
+  serviceId: string;
+  vendorId?: string | null;
+  name: string;
+  description?: string | null;
+  pricingModel: "FIXED" | "PER_PERSON" | "PER_HOUR" | "PER_DAY" | "PER_UNIT" | "CUSTOM_QUOTATION";
+  price?: number | null;
+  features: string[];
+  isActive: boolean;
 }
 
 export interface ServiceItem {
   id: string;
-  categoryId: string;
-  category?: ServiceCategory;
+  categoryId?: string | null;
+  category?: ServiceCategory | null;
   name: string;
   slug: string;
-  description?: string;
+  description?: string | null;
   pricingModel: "FIXED" | "PER_PERSON" | "PER_HOUR" | "PER_DAY" | "PER_UNIT" | "CUSTOM_QUOTATION";
-  basePrice: number;
+  basePrice?: number | null;
+  unitLabel?: string | null;
+  minQuantity?: number;
+  maxQuantity?: number | null;
+  minHours?: number | null;
+  maxHours?: number | null;
+  minDays?: number | null;
+  maxDays?: number | null;
   minGuests?: number;
   maxGuests?: number;
+  isVendorBased?: boolean;
   isActive: boolean;
   coverImage?: string;
   images?: string[];
-  aiPhotoShareMode?: string;
+  aiPhotoShareMode?: "NONE" | "INCLUDED" | "ADDON";
+  aiAddonPrice?: number | null;
+  defaultStoragePlanId?: string | null;
+  packages?: ServicePackageItem[];
+  _count?: { eventTypes?: number };
 }
 
 const serviceCatalogApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllCategories: builder.query<{ success: boolean; data: ServiceCategory[] }, void>({
-      query: () => ({
-        url: "/services/categories",
+    getAllCategories: builder.query<
+      { success: boolean; data: ServiceCategory[] },
+      { includeInactive?: boolean } | void
+    >({
+      query: (params) => ({
+        url: params?.includeInactive
+          ? "/services/categories?includeInactive=true"
+          : "/services/categories",
         method: "GET",
       }),
       providesTags: ["service"],
@@ -44,9 +76,14 @@ const serviceCatalogApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["service"],
     }),
-    getAllServices: builder.query<{ success: boolean; data: ServiceItem[] }, void>({
-      query: () => ({
-        url: "/services",
+    getAllServices: builder.query<
+      { success: boolean; data: ServiceItem[] },
+      { includeInactive?: boolean } | void
+    >({
+      query: (params) => ({
+        url: params?.includeInactive
+          ? "/services?includeInactive=true"
+          : "/services",
         method: "GET",
       }),
       providesTags: ["service"],
@@ -88,6 +125,29 @@ const serviceCatalogApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["service"],
     }),
+    createServicePackage: builder.mutation({
+      query: (body) => ({
+        url: "/services/packages",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["service"],
+    }),
+    updateServicePackage: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/services/packages/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["service"],
+    }),
+    deleteServicePackage: builder.mutation({
+      query: (id) => ({
+        url: `/services/packages/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["service"],
+    }),
   }),
 });
 
@@ -100,5 +160,7 @@ export const {
   useUpdateServiceMutation,
   useDeleteServiceMutation,
   useToggleActiveServiceMutation,
+  useCreateServicePackageMutation,
+  useUpdateServicePackageMutation,
+  useDeleteServicePackageMutation,
 } = serviceCatalogApi;
-

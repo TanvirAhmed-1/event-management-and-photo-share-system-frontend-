@@ -19,19 +19,22 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         {children}
         <Toaster
           position="top-center"
+          containerStyle={{ top: 20 }}
           toastOptions={{
-            duration: 4000,
+            duration: 3500,
             style: {
-              background: "#131315",
-              color: "#f4f4f7",
-              border: "1px solid rgba(212, 175, 55, 0.15)",
-              fontFamily: "var(--font-inter)",
-              fontSize: "14px",
+              background: "#17123B",
+              color: "#ffffff",
+              border: "1px solid rgba(124, 58, 237, 0.35)",
+              borderRadius: "14px",
+              fontSize: "13px",
+              fontWeight: 600,
+              boxShadow: "0 12px 30px -8px rgba(23, 18, 59, 0.35)",
             },
             success: {
               iconTheme: {
-                primary: "#d4af37",
-                secondary: "#131315",
+                primary: "#A78BFA",
+                secondary: "#17123B",
               },
             },
           }}

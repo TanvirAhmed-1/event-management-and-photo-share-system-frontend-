@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import toast from "react-hot-toast";
 
 export default function AdminPackages() {
@@ -26,6 +27,8 @@ export default function AdminPackages() {
   const [deletePackage] = useDeletePackageMutation();
 
   const [showModal, setShowModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [name, setName] = useState("");
   const [storageLimitMB, setStorageLimitMB] = useState("");
   const [price, setPrice] = useState("");
@@ -34,14 +37,22 @@ export default function AdminPackages() {
 
   const packages = response?.data || [];
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this storage plan?")) return;
+  const handleDelete = (id: string) => {
+    setDeleteTargetId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return;
+    setIsDeleting(true);
     try {
-      await deletePackage(id).unwrap();
+      await deletePackage(deleteTargetId).unwrap();
       toast.success("Storage plan deleted!");
+      setDeleteTargetId(null);
       refetch();
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to delete plan");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -245,6 +256,15 @@ export default function AdminPackages() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
+      <DeleteConfirmDialog
+        open={Boolean(deleteTargetId)}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title="Delete Storage Plan?"
+        description="Are you sure you want to delete this storage plan? This action cannot be undone."
+        isLoading={isDeleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

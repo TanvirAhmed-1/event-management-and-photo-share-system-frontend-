@@ -77,13 +77,13 @@ export function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  // Super Admin Route Protection: Only allow access if role in token is SUPER_ADMIN
+  // Admin & Super Admin Route Protection: Only allow access if role in token is ADMIN or SUPER_ADMIN
   if (pathname.startsWith("/admin")) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
     const decoded = decodeJwt(token);
-    if (!decoded || decoded.role !== "SUPER_ADMIN") {
+    if (!decoded || (decoded.role !== "SUPER_ADMIN" && decoded.role !== "ADMIN")) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   }

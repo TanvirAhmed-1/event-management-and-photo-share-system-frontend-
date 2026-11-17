@@ -35,7 +35,8 @@ export default function Login() {
       const response = await loginUser(formData).unwrap();
       if (response.success) {
         toast.success("Welcome back! Redirecting...");
-        if (response.data?.user?.role === "SUPER_ADMIN") {
+        const role = response.data?.user?.role;
+        if (role === "SUPER_ADMIN" || role === "ADMIN") {
           router.push("/admin");
         } else {
           router.push("/dashboard");

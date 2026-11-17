@@ -16,6 +16,7 @@ import {
   SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   LayoutDashboard,
   Layers,
@@ -52,17 +53,19 @@ export default function AdminLayout({
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [quickEditOpen, setQuickEditOpen] = useState(false);
 
-  if (!token || user?.role !== "SUPER_ADMIN") {
+  const isAuthorizedAdmin = user?.role === "SUPER_ADMIN" || user?.role === "ADMIN";
+
+  if (!token || !isAuthorizedAdmin) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center bg-[#F8FAFC]">
         <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mb-4">
           <ShieldCheck className="w-8 h-8" />
         </div>
         <h2 className="text-xl font-bold text-[#172554]">
-          Super Admin Access Required
+          Admin Access Required
         </h2>
         <p className="text-xs text-slate-500 max-w-sm mt-1.5 mb-6">
-          Please log in with Super Admin credentials to access the Eventora management console.
+          Please log in with Admin or Super Admin credentials to access the Eventora management console.
         </p>
         <Link
           href="/login"
@@ -217,7 +220,7 @@ export default function AdminLayout({
           <div className="mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-[9px] font-extrabold">
               <Crown className="w-2.5 h-2.5" />
-              <span>SUPER ADMIN</span>
+              <span>{user?.role === "SUPER_ADMIN" ? "SUPER ADMIN" : "ADMIN"}</span>
             </span>
             <Link
               href="/admin/profile"
@@ -325,7 +328,7 @@ export default function AdminLayout({
           </SheetTrigger>
           <SheetContent
             side="left"
-            className="p-0 w-[85vw] sm:max-w-xs bg-[#0F172A] border-slate-800 text-white [&>button]:text-slate-300 [&>button]:hover:bg-slate-800"
+            className="p-0 overflow-hidden w-[85vw] sm:max-w-xs bg-[#0F172A] border-slate-800 text-white [&>button]:text-slate-300 [&>button]:hover:bg-slate-800"
           >
             <SheetHeader className="px-5 pt-5 pb-3 border-b border-slate-800 bg-[#0F172A]">
               <SheetTitle className="text-sm text-white">
@@ -335,16 +338,18 @@ export default function AdminLayout({
                 Manage catalogs, storage plans, events &amp; hosts
               </SheetDescription>
             </SheetHeader>
-            <div className="flex-1 overflow-y-auto">
+            <ScrollArea className="flex-1 min-h-0">
               {renderSidebarBody(() => setMobileSheetOpen(false))}
-            </div>
+            </ScrollArea>
           </SheetContent>
         </Sheet>
       </div>
 
       {/* Desktop Sticky Left Sidebar */}
-      <aside className="hidden lg:flex lg:w-72 lg:flex-col lg:shrink-0 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] border-r border-slate-800 bg-[#0F172A] overflow-y-auto">
-        {renderSidebarBody()}
+      <aside className="hidden lg:flex lg:w-72 lg:flex-col lg:shrink-0 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] border-r border-slate-800 bg-[#0F172A] overflow-hidden">
+        <ScrollArea className="h-full">
+          {renderSidebarBody()}
+        </ScrollArea>
       </aside>
 
       {/* Right Content Column */}
@@ -360,7 +365,7 @@ export default function AdminLayout({
           <div className="flex items-center gap-2.5">
             <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-extrabold">
               <Crown className="w-3 h-3 text-amber-500" />
-              SUPER ADMIN
+              {user?.role === "SUPER_ADMIN" ? "SUPER ADMIN" : "ADMIN"}
             </span>
             <Link
               href="/admin"
