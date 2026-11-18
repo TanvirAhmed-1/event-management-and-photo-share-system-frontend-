@@ -60,6 +60,13 @@ import {
 } from "@/components/ui/select";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import CloudinaryImageUpload from "@/components/shared/CloudinaryImageUpload";
+import ImageOptionSelector from "./ImageOptionSelector";
+
+const SERVICE_PRESETS = [
+  { label: "Photography", url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=600&auto=format&fit=crop" },
+  { label: "Decoration", url: "https://images.unsplash.com/photo-1478146896981-b80fe463b330?q=80&w=600&auto=format&fit=crop" },
+  { label: "Venue", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=600&auto=format&fit=crop" },
+];
 import TableThumbnail from "@/components/shared/TableThumbnail";
 import TablePagination, { paginateItems } from "@/components/shared/TablePagination";
 import toast from "react-hot-toast";
@@ -847,7 +854,7 @@ export default function AdminServices() {
                 />
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-3">
                 <Label className="text-xs">Service Photos</Label>
                 <CloudinaryImageUpload
                   multiple
@@ -855,6 +862,16 @@ export default function AdminServices() {
                   onChangeMany={(urls) =>
                     setForm((prev) => ({ ...prev, images: urls }))
                   }
+                />
+                <ImageOptionSelector
+                  value={form.images[0] || ""}
+                  onChange={(url) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      images: url ? [url, ...prev.images.slice(1)] : prev.images.slice(1),
+                    }))
+                  }
+                  presets={SERVICE_PRESETS}
                 />
               </div>
             </div>

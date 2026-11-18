@@ -64,10 +64,10 @@ export default function HeroSection() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (location && location !== "all") params.set("city", location);
+    if (location && location !== "all") params.set("location", location);
     if (eventDate) params.set("date", eventDate);
     const qs = params.toString();
-    router.push(`/events${qs ? `?${qs}` : ""}`);
+    router.push(`/events/new${qs ? `?${qs}` : ""}`);
   };
 
   const handleAiPhotoSearch = (e: React.FormEvent) => {

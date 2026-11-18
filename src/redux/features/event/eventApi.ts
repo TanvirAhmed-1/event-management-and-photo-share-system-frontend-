@@ -100,6 +100,22 @@ const eventApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["event"],
     }),
+    customCreateEvent: builder.mutation({
+      query: (body) => ({
+        url: "/events/custom-create",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["event", "user"],
+    }),
+    checkVendorAvailability: builder.query({
+      query: ({ date, serviceIds }: { date: string; serviceIds?: string[] }) => ({
+        url: `/vendors/availability?date=${encodeURIComponent(date)}${
+          serviceIds && serviceIds.length > 0 ? `&serviceIds=${serviceIds.join(",")}` : ""
+        }`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -117,4 +133,6 @@ export const {
   useToggleEventActiveAdminMutation,
   useGetDateAvailabilityQuery,
   useUpdateEventStatusAdminMutation,
+  useCustomCreateEventMutation,
+  useCheckVendorAvailabilityQuery,
 } = eventApi;

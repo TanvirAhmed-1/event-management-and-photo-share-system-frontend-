@@ -53,6 +53,13 @@ import {
 } from "@/components/ui/select";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import CloudinaryImageUpload from "@/components/shared/CloudinaryImageUpload";
+import ImageOptionSelector from "./ImageOptionSelector";
+
+const FOOD_PRESETS = [
+  { label: "Kacchi Biryani", url: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=600&auto=format&fit=crop" },
+  { label: "Meat & Roast", url: "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop" },
+  { label: "Desserts", url: "https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=600&auto=format&fit=crop" },
+];
 import TableThumbnail from "@/components/shared/TableThumbnail";
 import TablePagination, { paginateItems } from "@/components/shared/TablePagination";
 import toast from "react-hot-toast";
@@ -749,7 +756,7 @@ export default function AdminFoodCatalog() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-3">
                 <Label className="text-xs">Dish Photos</Label>
                 <CloudinaryImageUpload
                   multiple
@@ -757,6 +764,16 @@ export default function AdminFoodCatalog() {
                   onChangeMany={(urls) =>
                     setForm((prev) => ({ ...prev, images: urls }))
                   }
+                />
+                <ImageOptionSelector
+                  value={form.images[0] || ""}
+                  onChange={(url) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      images: url ? [url, ...prev.images.slice(1)] : prev.images.slice(1),
+                    }))
+                  }
+                  presets={FOOD_PRESETS}
                 />
               </div>
 

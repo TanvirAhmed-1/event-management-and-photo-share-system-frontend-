@@ -43,6 +43,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import CloudinaryImageUpload from "@/components/shared/CloudinaryImageUpload";
+import ImageOptionSelector from "./ImageOptionSelector";
+
+const EVENT_TYPE_PRESETS = [
+  { label: "Wedding", url: "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=600&auto=format&fit=crop" },
+  { label: "Birthday", url: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=600&auto=format&fit=crop" },
+  { label: "Corporate", url: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600&auto=format&fit=crop" },
+];
 import TableThumbnail from "@/components/shared/TableThumbnail";
 import TablePagination, { paginateItems } from "@/components/shared/TablePagination";
 import toast from "react-hot-toast";
@@ -472,13 +479,20 @@ export default function AdminEventTypes() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-3">
                 <Label className="text-xs">Cover Photo</Label>
                 <CloudinaryImageUpload
                   value={form.imageUrl}
                   onChange={(url) =>
                     setForm((prev) => ({ ...prev, imageUrl: url }))
                   }
+                />
+                <ImageOptionSelector
+                  value={form.imageUrl}
+                  onChange={(url) =>
+                    setForm((prev) => ({ ...prev, imageUrl: url }))
+                  }
+                  presets={EVENT_TYPE_PRESETS}
                 />
               </div>
 

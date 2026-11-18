@@ -128,11 +128,18 @@ export default function Navbar() {
       {
         name: "Events",
         href: "/events",
-        items: eventTypes.map((et: any) => ({
-          label: et.name,
-          href: `/events?type=${encodeURIComponent(et.slug)}`,
-          icon: getEventIcon(et.slug),
-        })),
+        items: [
+          {
+            label: "Build Your Own Event",
+            href: "/events/new",
+            icon: Sparkles,
+          },
+          ...eventTypes.map((et: any) => ({
+            label: et.name,
+            href: `/events?type=${encodeURIComponent(et.slug)}`,
+            icon: getEventIcon(et.slug),
+          })),
+        ],
       },
       {
         name: "Services",
@@ -191,60 +198,70 @@ export default function Navbar() {
             >
               <Link
                 href="/"
-                className={`px-2 py-1.5 rounded-lg transition-colors hover:text-[#7C3AED] ${
+                className={`py-2 font-semibold transition-colors hover:text-[#7C3AED] border-b-2 ${
                   pathname === "/"
-                    ? "text-[#7C3AED] font-bold bg-purple-50/70"
-                    : ""
+                    ? "text-[#7C3AED] border-[#7C3AED]"
+                    : "border-transparent"
                 }`}
               >
                 Home
               </Link>
 
-              {navDropdowns.map((menu) => (
-                <div key={menu.name} className="relative group">
-                  <button
-                    onClick={() =>
-                      setActiveDropdown(
-                        activeDropdown === menu.name ? null : menu.name
-                      )
-                    }
-                    className="flex items-center gap-1 py-2 px-1.5 text-slate-700 hover:text-[#7C3AED] transition-colors focus:outline-none"
-                  >
-                    <span>{menu.name}</span>
-                    <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180 text-slate-400 group-hover:text-[#7C3AED]" />
-                  </button>
+              {navDropdowns.map((menu) => {
+                const isActiveMenu =
+                  (menu.name === "Events" && pathname.startsWith("/events")) ||
+                  (menu.name === "Services" && pathname.startsWith("/services")) ||
+                  (menu.name === "Packages" && pathname.startsWith("/packages"));
+                return (
+                  <div key={menu.name} className="relative group">
+                    <button
+                      onClick={() =>
+                        setActiveDropdown(
+                          activeDropdown === menu.name ? null : menu.name
+                        )
+                      }
+                      className={`flex items-center gap-1 py-2 px-1.5 font-semibold hover:text-[#7C3AED] transition-colors focus:outline-none border-b-2 ${
+                        isActiveMenu
+                          ? "text-[#7C3AED] border-[#7C3AED]"
+                          : "text-slate-700 border-transparent"
+                      }`}
+                    >
+                      <span>{menu.name}</span>
+                      <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180 text-slate-400 group-hover:text-[#7C3AED]" />
+                    </button>
 
-                  {/* Compact Clean Dropdown Menu */}
-                  <div className="absolute left-0 top-full pt-2 w-56 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
-                    <div className="rounded-2xl bg-white p-1.5 shadow-2xl shadow-slate-900/10 border border-slate-100 ring-1 ring-slate-900/5 space-y-0.5">
-                      {menu.items.map((sub: any) => {
-                        const SubIcon = sub.icon;
-                        return (
-                          <Link
-                            key={sub.label}
-                            href={sub.href}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-purple-50/70 group/item transition-colors"
-                          >
-                            <div className="w-7 h-7 rounded-lg bg-slate-50 group-hover/item:bg-white border border-slate-100 flex items-center justify-center text-[#7C3AED] shrink-0 shadow-2xs transition-colors">
-                              <SubIcon className="w-3.5 h-3.5" />
-                            </div>
-                            <span className="text-xs font-bold text-[#172554] group-hover/item:text-[#7C3AED] transition-colors truncate">
-                              {sub.label}
-                            </span>
-                          </Link>
-                        );
-                      })}
+                    {/* Compact Clean Dropdown Menu */}
+                    <div className="absolute left-0 top-full pt-2 w-56 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
+                      <div className="rounded-2xl bg-white p-1.5 shadow-2xl shadow-slate-900/10 border border-slate-100 ring-1 ring-slate-900/5 space-y-0.5">
+                        {menu.items.map((sub: any) => {
+                          const SubIcon = sub.icon;
+                          return (
+                            <Link
+                              key={sub.label}
+                              href={sub.href}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-purple-50/70 group/item transition-colors"
+                            >
+                              <div className="w-7 h-7 rounded-lg bg-slate-50 group-hover/item:bg-white border border-slate-100 flex items-center justify-center text-[#7C3AED] shrink-0 shadow-2xs transition-colors">
+                                <SubIcon className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-semibold text-[#172554] group-hover/item:text-[#7C3AED] transition-colors truncate">
+                                {sub.label}
+                              </span>
+                            </Link>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <Link
                 href="/about"
-                className={`px-2 py-1.5 rounded-lg transition-colors hover:text-[#7C3AED] ${
-                  pathname === "/about"
-                    ? "text-[#7C3AED] font-bold bg-purple-50/70"
-                    : ""
+                className={`py-2 font-semibold transition-colors hover:text-[#7C3AED] border-b-2 ${
+                  pathname.startsWith("/about")
+                    ? "text-[#7C3AED] border-[#7C3AED]"
+                    : "border-transparent"
                 }`}
               >
                 About
@@ -252,10 +269,10 @@ export default function Navbar() {
 
               <Link
                 href="/blog"
-                className={`px-2 py-1.5 rounded-lg transition-colors hover:text-[#7C3AED] ${
+                className={`py-2 font-semibold transition-colors hover:text-[#7C3AED] border-b-2 ${
                   pathname?.startsWith("/blog")
-                    ? "text-[#7C3AED] font-bold bg-purple-50/70"
-                    : ""
+                    ? "text-[#7C3AED] border-[#7C3AED]"
+                    : "border-transparent"
                 }`}
               >
                 Blog
